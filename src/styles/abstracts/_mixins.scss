@@ -1,0 +1,48 @@
+// Survey mixins - adapted from Oaklet-Swan
+@use 'variables' as *;
+
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin button-base {
+  padding: $spacing-md $spacing-lg;
+  border-radius: $radius-md;
+  font-family: $font-family;
+  font-size: $font-size-base;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  text-decoration: none;
+  
+  &:hover {
+    transform: translateY(-1px);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+@mixin card {
+  background: $color-white;
+  border-radius: $radius-lg;
+  padding: $spacing-xl;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+@mixin container {
+  max-width: $container-sm;
+  margin: 0 auto;
+  padding: 0 $spacing-md;
+}

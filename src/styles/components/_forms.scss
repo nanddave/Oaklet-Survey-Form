@@ -1,0 +1,171 @@
+@use '../abstracts/variables' as *;
+
+.form-group {
+  margin-bottom: $spacing-lg;
+  
+  label {
+    display: block;
+    margin-bottom: $spacing-sm;
+    font-weight: 500;
+    color: $color-dark;
+  }
+}
+
+// Radio button styling to match screenshots
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  text-align: left;
+  
+  .radio-option {
+    position: relative;
+    
+    input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      
+      &:checked + .radio-label {
+        border-color: $color-accent;
+        background-color: $color-accent-light;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
+      }
+    }
+    
+    .radio-label {
+      display: block;
+      padding: $spacing-md $spacing-lg;
+      border: 2px solid $color-light-gray;
+      border-radius: $radius-md;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background-color: $color-white;
+      
+      &:hover {
+        border-color: $color-accent;
+      }
+    }
+  }
+}
+
+// Dropdown styling
+.dropdown {
+  position: relative;
+  
+  select {
+    width: 100%;
+    padding: $spacing-md $spacing-lg;
+    border: 2px solid $color-light-gray;
+    border-radius: $radius-md;
+    font-size: $font-size-base;
+    background-color: $color-white;
+    cursor: pointer;
+    
+    &:focus {
+      outline: none;
+      border-color: $color-accent;
+    }
+  }
+}
+
+// Contact form styling
+.contact-inputs {
+  .name-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-md;
+    margin-bottom: $spacing-md;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .input-group {
+    margin-bottom: $spacing-md;
+    
+    input[type="text"],
+    input[type="email"] {
+      width: 100%;
+      padding: $spacing-md $spacing-lg;
+      border: 2px solid $color-light-gray;
+      border-radius: $radius-md;
+      font-size: $font-size-base;
+      
+      &:focus {
+        outline: none;
+        border-color: $color-accent;
+      }
+      
+      &.error {
+        border-color: $color-error;
+      }
+    }
+  }
+  
+  .privacy-indicators {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: $spacing-sm;
+    font-size: $font-size-sm;
+    color: $color-gray;
+    
+    .indicator {
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+      font-weight: 500;
+    }
+  }
+  
+  .error-message {
+    color: $color-error;
+    font-size: $font-size-sm;
+    margin-top: $spacing-xs;
+  }
+}
+
+// Email input styling (legacy)
+.email-input {
+  input[type="email"] {
+    width: 100%;
+    padding: $spacing-md $spacing-lg;
+    border: 2px solid $color-light-gray;
+    border-radius: $radius-md;
+    font-size: $font-size-base;
+    
+    &:focus {
+      outline: none;
+      border-color: $color-accent;
+    }
+    
+    &.error {
+      border-color: $color-error;
+    }
+  }
+  
+  .privacy-indicators {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: $spacing-sm;
+    font-size: $font-size-sm;
+    color: $color-gray;
+    
+    .indicator {
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+      font-weight: 500;
+    }
+  }
+  
+  .error-message {
+    color: $color-error;
+    font-size: $font-size-sm;
+    margin-top: $spacing-xs;
+  }
+}

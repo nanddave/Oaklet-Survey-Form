@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oaklet Survey Widget Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #1f2937;
+            margin-bottom: 16px;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+        }
+        
+        .demo-section {
+            margin-bottom: 40px;
+            padding: 24px;
+            border: 2px dashed #e5e7eb;
+            border-radius: 12px;
+            background: #f9fafb;
+        }
+        
+        .demo-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 16px;
+        }
+        
+        .demo-description {
+            color: #6b7280;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .button-container {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .code-block {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        
+        .highlight {
+            background: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #92400e;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 8px 0;
+            color: #374151;
+            display: flex;
+            align-items: center;
+        }
+        
+        .feature-list li::before {
+            content: "✅";
+            margin-right: 12px;
+            font-size: 16px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status.ready {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status.development {
+            background: #fef3c7;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 Oaklet Survey Widget</h1>
+        <p class="subtitle">HIPAA-compliant survey form for healthcare providers</p>
+        
+        <div class="status ready">Ready for Integration</div>
+        
+        <div class="demo-section">
+            <h2 class="demo-title">Live Demo</h2>
+            <p class="demo-description">
+                Test the survey widget with different configurations. The widget opens in a modal overlay
+                and communicates seamlessly with the Oaklet backend.
+            </p>
+            
+            <div class="button-container">
+                <button id="default-widget" class="demo-button">Default Widget</button>
+                <button id="custom-widget" class="demo-button">Custom Theme</button>
+                <button id="medical-widget" class="demo-button">Medical Theme</button>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2 class="demo-title">Integration Code</h2>
+            <p class="demo-description">
+                Add this simple script tag to your website and start collecting patient data:
+            </p>
+            
+            <div class="code-block">
+&lt;!-- Add to your HTML head --&gt;
+&lt;script src="https://survey.oaklet.com/widget.js"&gt;&lt;/script&gt;
+
+&lt;!-- Add this button anywhere on your page --&gt;
+&lt;button onclick="OakletSurvey.open('your-org-id')"&gt;
+  Schedule Consultation
+&lt;/button&gt;
+
+&lt;!-- Or create a custom button --&gt;
+&lt;script&gt;
+  const button = OakletSurvey.createButton({
+    organizationId: '<span class="highlight">your-org-id</span>',
+    buttonText: 'Book Appointment',
+    theme: {
+      primaryColor: '<span class="highlight">#059669</span>',
+      borderRadius: '<span class="highlight">8px</span>'
+    },
+    onComplete: (result) => {
+      console.log('Survey completed:', result);
+      // Handle successful completion
+    },
+    onError: (error) => {
+      console.error('Survey error:', error);
+      // Handle errors
+    }
+  });
+  
+  document.getElementById('schedule-button').appendChild(button);
+&lt;/script&gt;
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2 class="demo-title">Features</h2>
+            <ul class="feature-list">
+                <li>HIPAA-compliant encryption with AWS KMS</li>
+                <li>Seamless integration with Oaklet-Nest</li>
+                <li>Automatic appointment scheduling</li>
+                <li>Customizable themes and branding</li>
+                <li>Mobile-responsive design</li>
+                <li>Real-time availability checking</li>
+                <li>Secure iframe implementation</li>
+                <li>Comprehensive error handling</li>
+                <li>Audit logging and compliance</li>
+                <li>Multi-organization support</li>
+            </ul>
+        </div>
+        
+        <div class="demo-section">
+            <h2 class="demo-title">Configuration Options</h2>
+            <div class="code-block">
+{
+  organizationId: '<span class="highlight">string</span>',     // Required: Your organization ID
+  buttonText: '<span class="highlight">string</span>',        // Optional: Button text
+  theme: {
+    primaryColor: '<span class="highlight">string</span>',    // Optional: Primary color
+    backgroundColor: '<span class="highlight">string</span>', // Optional: Background color
+    fontFamily: '<span class="highlight">string</span>',      // Optional: Font family
+    borderRadius: '<span class="highlight">string</span>'     // Optional: Border radius
+  },
+  onComplete: <span class="highlight">function</span>,         // Optional: Completion callback
+  onError: <span class="highlight">function</span>,           // Optional: Error callback
+  onClose: <span class="highlight">function</span>            // Optional: Close callback
+}
+            </div>
+        </div>
+    </div>
+
+    <script src="src/oakletWidget.js"></script>
+    <script>
+        // Demo button handlers
+        document.getElementById('default-widget').addEventListener('click', () => {
+            const widget = new OakletSurvey({
+                organizationId: 'demo-org',
+                onComplete: (result) => {
+                    alert(`Survey completed! Confirmation: ${result.confirmationNumber}`);
+                },
+                onError: (error) => {
+                    alert(`Survey error: ${error.message}`);
+                }
+            });
+            widget.show();
+        });
+
+        document.getElementById('custom-widget').addEventListener('click', () => {
+            const widget = new OakletSurvey({
+                organizationId: 'demo-org',
+                theme: {
+                    primaryColor: '#059669',
+                    backgroundColor: '#f0fdf4',
+                    borderRadius: '16px'
+                },
+                onComplete: (result) => {
+                    alert(`Custom survey completed! ID: ${result.submissionId}`);
+                }
+            });
+            widget.show();
+        });
+
+        document.getElementById('medical-widget').addEventListener('click', () => {
+            const widget = new OakletSurvey({
+                organizationId: 'medical-demo',
+                theme: {
+                    primaryColor: '#dc2626',
+                    backgroundColor: '#fef2f2',
+                    borderRadius: '8px'
+                },
+                onComplete: (result) => {
+                    alert(`Medical survey completed! Appointment: ${result.appointmentId}`);
+                }
+            });
+            widget.show();
+        });
+
+        // Add button styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .demo-button {
+                background: #3b82f6;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            
+            .demo-button:hover {
+                background: #2563eb;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            }
+            
+            .demo-button:active {
+                transform: translateY(0);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

@@ -1,0 +1,220 @@
+@use '../abstracts/variables' as *;
+
+.scheduling-container {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2xl;
+  align-items: center;
+  
+  .calendar-section {
+    text-align: center;
+    
+    h3 {
+      font-size: $font-size-lg;
+      font-weight: 600;
+      color: $color-dark;
+      margin-bottom: $spacing-lg;
+    }
+    
+    // Custom calendar styling
+    .react-calendar {
+      width: 100%;
+      max-width: 400px;
+      background: $color-white;
+      border: 2px solid $color-light-gray;
+      border-radius: $radius-md;
+      font-family: $font-family;
+      line-height: 1.125em;
+      
+      &__navigation {
+        display: flex;
+        height: 44px;
+        margin-bottom: 1em;
+        
+        button {
+          min-width: 44px;
+          background: none;
+          border: none;
+          font-size: $font-size-lg;
+          font-weight: 600;
+          color: $color-primary;
+          cursor: pointer;
+          
+          &:hover {
+            background-color: $color-light-gray;
+          }
+          
+          &:disabled {
+            background-color: transparent;
+            color: $color-gray;
+            cursor: not-allowed;
+          }
+        }
+        
+        &__label {
+          flex-grow: 1;
+          font-weight: 600;
+          color: $color-dark;
+        }
+      }
+      
+      &__month-view {
+        &__weekdays {
+          text-align: center;
+          text-transform: uppercase;
+          font-weight: bold;
+          font-size: 0.75em;
+          color: $color-gray;
+          
+          &__weekday {
+            padding: 0.5em;
+          }
+        }
+        
+        &__days {
+          &__day {
+            &--weekend {
+              color: $color-error;
+            }
+            
+            &--neighboringMonth {
+              color: $color-gray;
+            }
+          }
+        }
+      }
+      
+      &__tile {
+        max-width: 100%;
+        padding: 0.75em 0.5em;
+        background: none;
+        border: none;
+        font-size: $font-size-sm;
+        color: $color-dark;
+        cursor: pointer;
+        
+        &:hover {
+          background-color: $color-accent-light;
+        }
+        
+        &:disabled {
+          background-color: transparent;
+          color: $color-light-gray;
+          cursor: not-allowed;
+        }
+        
+        &--active {
+          background: $color-accent;
+          color: $color-white;
+          
+          &:hover {
+            background: $color-accent;
+          }
+        }
+        
+        &.available-date {
+          background-color: #f0f9ff;
+          border: 1px solid $color-accent;
+          border-radius: $radius-sm;
+          font-weight: 500;
+          
+          &:hover {
+            background-color: $color-accent-light;
+          }
+        }
+      }
+    }
+  }
+  
+  .time-slots-section {
+    text-align: center;
+    width: 100%;
+    
+    h3 {
+      font-size: $font-size-lg;
+      font-weight: 600;
+      color: $color-dark;
+      margin-bottom: $spacing-lg;
+    }
+    
+    .time-slots {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: $spacing-md;
+      max-width: 500px;
+      margin: 0 auto;
+      
+      .time-slot {
+        padding: $spacing-md $spacing-lg;
+        border: 2px solid $color-light-gray;
+        border-radius: $radius-md;
+        background: $color-white;
+        color: $color-dark;
+        font-size: $font-size-base;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          border-color: $color-accent;
+          background-color: $color-accent-light;
+        }
+        
+        &.selected {
+          border-color: $color-accent;
+          background-color: $color-accent;
+          color: $color-white;
+          
+          &:hover {
+            background-color: $color-accent;
+          }
+        }
+      }
+    }
+  }
+  
+  .no-times-message {
+    text-align: center;
+    padding: $spacing-lg;
+    color: $color-gray;
+    font-style: italic;
+  }
+  
+  .selected-appointment {
+    text-align: center;
+    padding: $spacing-lg;
+    background-color: $color-success;
+    background-color: rgba($color-success, 0.1);
+    border: 1px solid $color-success;
+    border-radius: $radius-md;
+    color: $color-success;
+    font-weight: 500;
+    
+    strong {
+      color: $color-dark;
+    }
+  }
+}
+
+// Mobile responsive
+@media (max-width: 600px) {
+  .scheduling-container {
+    .calendar-section {
+      .react-calendar {
+        max-width: 100%;
+      }
+    }
+    
+    .time-slots-section {
+      .time-slots {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: $spacing-sm;
+        
+        .time-slot {
+          padding: $spacing-sm;
+          font-size: $font-size-sm;
+        }
+      }
+    }
+  }
+}
