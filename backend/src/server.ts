@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import { SurveyController } from './controllers/surveyController';
 import { logger } from './config/logger';
 import { optionalServiceToken } from './middleware/auth';
+import { surveyRateLimit, emailCheckRateLimit } from './middleware/rateLimit';
 
 // Load environment variables
 dotenv.config();
@@ -87,8 +88,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API Routes with optional service token validation
-app.post('/api/survey/submit', optionalServiceToken, (req, res) => {
+// API Routes with optional service token validation and rate limiting
+app.post('/api/survey/submit', optionalServiceToken, surveyRateLimit, (req, res) => {
   surveyController.submitAndSchedule(req, res);
 });
 
@@ -100,7 +101,7 @@ app.get('/api/survey/availability', optionalServiceToken, (req, res) => {
   surveyController.getAvailableSlots(req, res);
 });
 
-app.get('/api/survey/check-email', (req, res) => {
+app.get('/api/survey/check-email', emailCheckRateLimit, (req, res) => {
   surveyController.checkEmail(req, res);
 });
 

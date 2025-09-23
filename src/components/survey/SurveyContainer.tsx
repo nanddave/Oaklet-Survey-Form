@@ -9,7 +9,7 @@ import { useLocalStorage } from '../../hooks/useLocalStorage';
 // import { validateEmail } from '../../utils/validation';
 import { apiClient } from '../../services/apiClient';
 import { config } from '../../config/environment';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 export const SurveyContainer = () => {
   const {
@@ -29,15 +29,29 @@ export const SurveyContainer = () => {
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [submissionResult, setSubmissionResult] = useState<any>(null);
   const [submissionData, setSubmissionData] = useState<any>(null);
+  
+  // Prevent double submission due to React StrictMode
+  const submissionRef = useRef(false);
+  const [submissionState, setSubmissionState] = useState<'idle' | 'submitting' | 'completed' | 'error'>('idle');
 
   // Handle survey completion and submission to backend
   useEffect(() => {
-    if (surveyState.isComplete && surveyState.responses && !isSubmitting && !submissionResult) {
+    if (surveyState.isComplete && 
+        surveyState.responses && 
+        submissionState === 'idle' && 
+        !submissionRef.current) {
       handleSurveyCompletion();
     }
-  }, [surveyState.isComplete, surveyState.responses, isSubmitting, submissionResult]);
+  }, [surveyState.isComplete, surveyState.responses, submissionState]);
 
   const handleSurveyCompletion = async () => {
+    // Prevent double submission
+    if (submissionRef.current || submissionState !== 'idle') {
+      return;
+    }
+    
+    submissionRef.current = true;
+    setSubmissionState('submitting');
     setIsSubmitting(true);
     setSubmissionError(null);
 
@@ -84,6 +98,7 @@ export const SurveyContainer = () => {
 
       if (result.success) {
         setSubmissionResult(result);
+        setSubmissionState('completed');
         
         // Store locally for backup
         addSubmission(surveyState.responses, {
@@ -92,6 +107,9 @@ export const SurveyContainer = () => {
           appointmentTime: submissionData.appointment.appointmentTime,
           sessionType: 'Initial Consultation'
         });
+
+        // Clean up localStorage after successful submission
+        localStorage.removeItem('survey_responses');
 
         // Notify parent window if in widget mode
         if (window.parent !== window) {
@@ -102,6 +120,7 @@ export const SurveyContainer = () => {
         }
       } else {
         setSubmissionError(result.error || 'Submission failed');
+        setSubmissionState('error');
         
         // Notify parent window of error
         if (window.parent !== window) {
@@ -114,6 +133,7 @@ export const SurveyContainer = () => {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
       setSubmissionError(errorMessage);
+      setSubmissionState('error');
       
       // Still store locally as backup
       addSubmission(surveyState.responses, {
@@ -131,6 +151,8 @@ export const SurveyContainer = () => {
       }
     } finally {
       setIsSubmitting(false);
+      // Reset submission ref to allow retry
+      submissionRef.current = false;
     }
   };
 
@@ -261,7 +283,11 @@ export const SurveyContainer = () => {
             <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <Button 
                 variant="secondary" 
-                onClick={resetSurvey}
+                onClick={() => {
+                  submissionRef.current = false;
+                  setSubmissionState('idle');
+                  resetSurvey();
+                }}
               >
                 Start Over
               </Button>

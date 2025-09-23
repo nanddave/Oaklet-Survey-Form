@@ -3,6 +3,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { OakletNestService } from '../services/oakletNestService';
 import { SurveyEncryptionService } from '../services/encryptionService';
 import { DynamoDBService } from '../services/dynamodbService';
+import { SurveyValidationService } from '../services/SurveyValidationService';
+import { AuditService } from '../services/AuditService';
+import { RetryService } from '../services/RetryService';
+import { ErrorMappingService } from '../services/ErrorMappingService';
+import { SurveyConfig } from '../config/survey.config';
 import { logger } from '../config/logger';
 
 export interface SurveySubmissionRequest {
@@ -42,11 +47,19 @@ export class SurveyController {
   private oakletNest: OakletNestService;
   private encryption: SurveyEncryptionService;
   private dynamodb: DynamoDBService;
+  private validation: SurveyValidationService;
+  private audit: AuditService;
+  private retry: RetryService;
+  private errorMapping: ErrorMappingService;
 
   constructor() {
     this.oakletNest = new OakletNestService();
     this.encryption = new SurveyEncryptionService();
     this.dynamodb = new DynamoDBService();
+    this.validation = new SurveyValidationService();
+    this.audit = new AuditService();
+    this.retry = new RetryService();
+    this.errorMapping = new ErrorMappingService();
   }
 
   async checkEmail(req: Request, res: Response): Promise<void> {
@@ -77,6 +90,15 @@ export class SurveyController {
         isAvailable,
         existingCount: existingSubmissions.length
       });
+
+      // Log audit event
+      await this.audit.logEmailCheck(
+        email,
+        process.env.DEFAULT_ORGANIZATION_ID || '',
+        isAvailable,
+        req.ip,
+        req.get('User-Agent')
+      );
 
       res.json({
         success: true,
@@ -113,29 +135,18 @@ export class SurveyController {
     try {
       const { responses, appointment, organizationId = process.env.DEFAULT_ORGANIZATION_ID || '' }: SurveySubmissionRequest = req.body;
 
-      // Validate required fields
-      if (!responses.firstName || !responses.lastName || !responses.email || !responses.q1 || !responses.q3 || !responses.q5 || !appointment.selectedDateTime) {
-        res.status(400).json({
-          success: false,
-          error: 'Missing required fields',
-          retryAction: 'start_over',
-          supportMessage: 'Please ensure all required fields are completed'
-        } as SurveySubmissionResponse);
-        return;
-      }
-
-      // 1. Submit survey to Nest (handles client creation, appointment scheduling, and data storage)
-      const nestResult = await this.oakletNest.submitSurvey({
+      // Prepare submission data for validation
+      const submissionData = {
         responses: {
+          firstName: responses.firstName,
+          lastName: responses.lastName,
+          email: responses.email,
           q1: responses.q1,
           q2: responses.q2,
           q3: responses.q3,
           q4: responses.q4,
           q5: responses.q5,
           location: responses.location,
-          firstName: responses.firstName,
-          lastName: responses.lastName,
-          email: responses.email,
           scheduling: responses.scheduling
         },
         appointment: {
@@ -145,7 +156,79 @@ export class SurveyController {
         },
         organizationId,
         submissionId
-      });
+      };
+
+      // Validate submission using validation service
+      const validationResult = await this.validation.validateSubmission(submissionData);
+      
+      if (!validationResult.isValid) {
+        logger.warn('Survey validation failed', {
+          submissionId,
+          errors: validationResult.errors,
+          warnings: validationResult.warnings
+        });
+
+        // Log validation failure
+        await this.audit.logValidationFailure(
+          submissionId,
+          responses.email,
+          organizationId,
+          validationResult.errors,
+          req.ip,
+          req.get('User-Agent')
+        );
+
+        res.status(400).json({
+          success: false,
+          error: validationResult.errors.join('; '),
+          retryAction: 'start_over',
+          supportMessage: 'Please check your information and try again'
+        } as SurveySubmissionResponse);
+        return;
+      }
+
+      // Log warnings if any
+      if (validationResult.warnings.length > 0) {
+        logger.info('Survey validation warnings', {
+          submissionId,
+          warnings: validationResult.warnings
+        });
+      }
+
+      // 1. Submit survey to Nest with retry logic
+      const nestResult = await this.retry.executeWithConditionalRetry(
+        () => this.oakletNest.submitSurvey({
+          responses: {
+            q1: responses.q1,
+            q2: responses.q2,
+            q3: responses.q3,
+            q4: responses.q4,
+            q5: responses.q5,
+            location: responses.location,
+            firstName: responses.firstName,
+            lastName: responses.lastName,
+            email: responses.email,
+            scheduling: responses.scheduling
+          },
+          appointment: {
+            selectedDateTime: appointment.selectedDateTime,
+            appointmentDate: appointment.appointmentDate,
+            appointmentTime: appointment.appointmentTime
+          },
+          organizationId,
+          submissionId
+        }),
+        {
+          maxAttempts: 3,
+          baseDelay: 1000,
+          maxDelay: 5000
+        },
+        'Oaklet Nest survey submission'
+      );
+
+      if (!nestResult.success) {
+        throw nestResult.error || new Error('Failed to submit survey to Oaklet Nest');
+      }
 
       // 3. Encrypt sensitive health data
       const encryptedPHI = await this.encryption.encryptPHI({
@@ -175,13 +258,13 @@ export class SurveyController {
         lastName: responses.lastName,
         email: responses.email,
         // Appointment details (flat fields)
-        appointmentId: nestResult.appointmentId,
+        appointmentId: nestResult.result!.appointmentId,
         appointmentDate: appointment.appointmentDate,
         appointmentTime: appointment.appointmentTime,
         sessionType: process.env.DEFAULT_SESSION_TYPE || "Initial Consultation",
         appointmentStatus: "scheduled",
         // Client info (flat fields)
-        clientId: nestResult.clientId,
+        clientId: nestResult.result!.clientId,
         clientType: "pre-registration",
         // Metadata (flat fields)
         completedAt: new Date().toISOString(),
@@ -194,14 +277,24 @@ export class SurveyController {
       await this.dynamodb.saveSurveySubmission(submission);
 
       // 5. Return success response
-      const confirmationNumber = nestResult.confirmationNumber;
+      const confirmationNumber = nestResult.result!.confirmationNumber;
       
       logger.info('Survey submission completed successfully', {
         submissionId,
-        appointmentId: nestResult.appointmentId,
-        clientId: nestResult.clientId,
+        appointmentId: nestResult.result!.appointmentId,
+        clientId: nestResult.result!.clientId,
         confirmationNumber
       });
+
+      // Log successful submission
+      await this.audit.logSurveySubmission(
+        submissionId,
+        responses.email,
+        organizationId,
+        req.ip,
+        req.get('User-Agent'),
+        true
+      );
 
       const nextSteps = process.env.SURVEY_NEXT_STEPS 
         ? process.env.SURVEY_NEXT_STEPS.split(',')
@@ -214,25 +307,48 @@ export class SurveyController {
       res.json({
         success: true,
         submissionId,
-        appointmentId: nestResult.appointmentId,
+        appointmentId: nestResult.result!.appointmentId,
         confirmationNumber,
         message: process.env.SURVEY_SUCCESS_MESSAGE || "Survey completed and appointment scheduled successfully!",
         nextSteps
       } as SurveySubmissionResponse);
 
     } catch (error) {
+      const errorObj = error instanceof Error ? error : new Error(String(error));
+      
+      // Map error to user-friendly response
+      const errorMapping = this.errorMapping.mapError(errorObj);
+      
       logger.error('Survey submission failed', {
         submissionId,
         requestId,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined
+        error: errorObj.message,
+        stack: errorObj.stack,
+        logLevel: errorMapping.logLevel
       });
+
+      // Log failed submission
+      try {
+        await this.audit.logSurveySubmission(
+          submissionId,
+          req.body?.responses?.email || 'unknown',
+          req.body?.organizationId || process.env.DEFAULT_ORGANIZATION_ID || '',
+          req.ip,
+          req.get('User-Agent'),
+          false
+        );
+      } catch (auditError) {
+        logger.error('Failed to log audit event for failed submission', {
+          submissionId,
+          auditError: auditError instanceof Error ? auditError.message : 'Unknown error'
+        });
+      }
       
-      res.status(500).json({
+      res.status(errorMapping.statusCode).json({
         success: false,
-        error: "We're experiencing technical difficulties. Please try again.",
-        retryAction: "start_over",
-        supportMessage: "If this problem persists, please contact support@oaklet.com",
+        error: errorMapping.userMessage,
+        retryAction: errorMapping.retryAction,
+        supportMessage: errorMapping.supportMessage,
         submissionId // For support tracking
       } as SurveySubmissionResponse);
     }
