@@ -103,7 +103,7 @@ export class ErrorMappingService {
       logLevel: 'error'
     });
 
-    // Generic fallback
+    // fallback
     this.errorMappings.set('UNKNOWN_ERROR', {
       userMessage: SurveyConfig.messages.genericError,
       retryAction: 'contact_support',
