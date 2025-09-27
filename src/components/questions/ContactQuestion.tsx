@@ -40,14 +40,12 @@ export const ContactQuestion = ({
     const updatedData = { ...contactData, [field]: inputValue };
     setContactData(updatedData);
     
-    // Validate if form can proceed
     const canProceed = updatedData.firstName.trim() && 
                       updatedData.lastName.trim() && 
                       updatedData.email.trim() && 
                       validateEmail(updatedData.email)?.isValid && 
                       emailCheckStatus !== 'taken';
     
-    // Include email availability status in the data
     const dataWithStatus = {
       ...updatedData,
       _emailStatus: emailCheckStatus,
@@ -55,14 +53,11 @@ export const ContactQuestion = ({
     };
     onChange(JSON.stringify(dataWithStatus));
     
-    // Check email availability when email changes (with debouncing)
     if (field === 'email' && inputValue.trim()) {
-      // Clear existing timeout
       if (debounceTimeout) {
         clearTimeout(debounceTimeout);
       }
       
-      // Set new timeout for debounced email check
       const newTimeout = setTimeout(() => {
         checkEmailAvailability(inputValue.trim());
       }, 500);
@@ -72,7 +67,6 @@ export const ContactQuestion = ({
   };
 
   const checkEmailAvailability = async (email: string) => {
-    // Only check if email is valid format
     const emailValidation = validateEmail(email);
     if (!emailValidation.isValid) {
       setEmailCheckStatus(null);
@@ -100,32 +94,18 @@ export const ContactQuestion = ({
         setEmailCheckMessage('Unable to verify email availability');
       }
     } catch (error) {
-      console.error('Email check failed:', error);
       setEmailCheckStatus(null);
       setEmailCheckMessage('Unable to verify email availability');
     }
   };
 
-  // Real-time email validation
   const emailValidation = contactData.email ? validateEmail(contactData.email) : undefined;
   const hasError = (emailValidation && !emailValidation.isValid) || emailCheckStatus === 'taken';
   
-  // Block form progression if email is taken
-  // const canProceed = contactData.firstName.trim() && 
-  //                   contactData.lastName.trim() && 
-  //                   contactData.email.trim() && 
-  //                   emailValidation?.isValid && 
-  //                   emailCheckStatus !== 'taken';
   
-  // Check if all required fields are filled and email is valid
-  // const isFormValid = contactData.firstName.trim() && 
-  //                    contactData.lastName.trim() && 
-  //                    contactData.email.trim() && 
-  //                    (!emailValidation || emailValidation.isValid);
 
   return (
     <div className="form-group">
-      {/* Customer Testimonial Section */}
       <div className="testimonial" style={{ marginBottom: '1.5rem' }}>
         <div className="testimonial-content" style={{
           background: '#f0fdf4',
@@ -233,7 +213,6 @@ export const ContactQuestion = ({
           </div>
         </div>
         
-        {/* Email validation and availability messages */}
         {hasError && emailValidation?.error && (
           <div className="error-message">
             {emailValidation.error}

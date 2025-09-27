@@ -157,9 +157,12 @@ export class SurveyValidationService {
    * Validate appointment data
    */
   private async validateAppointmentData(appointment: SurveySubmissionData['appointment']): Promise<void> {
-    const appointmentDate = new Date(appointment.appointmentDate);
+    // Parse YYYY-MM-DD string into local date components
+    const [year, month, day] = appointment.appointmentDate.split('-').map(Number);
+    const appointmentDate = new Date(year, month - 1, day); // Local midnight
+
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0); // Local midnight
 
     if (appointmentDate < today) {
       throw new SurveyValidationError('Appointment date cannot be in the past', 'appointmentDate');

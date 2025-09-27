@@ -60,11 +60,6 @@ const validateConfig = (): void => {
     throw new Error('VITE_SERVICE_TOKEN is required in production');
   }
   
-  console.log('🔧 Frontend Config Debug:', {
-    baseUrl: config.api.baseUrl,
-    orgId: config.organization.defaultId,
-    isDev: import.meta.env.DEV
-  });
 };
 
 validateConfig();

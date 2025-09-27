@@ -50,12 +50,12 @@ export class OakletNestService {
   private nestAuth: NestAuthService;
 
   constructor() {
-    this.baseUrl = process.env.OAKLET_NEST_URL;
-    this.nestAuth = new NestAuthService();
-
-    if (!this.baseUrl) {
+    const baseUrl = process.env.OAKLET_NEST_URL;
+    if (!baseUrl) {
       throw new Error('OAKLET_NEST_URL environment variable is required');
     }
+    this.baseUrl = baseUrl;
+    this.nestAuth = new NestAuthService();
   }
 
   async createPreRegistrationClient(email: string, state: string, surveySubmissionId: string): Promise<CreatedClient> {
@@ -63,8 +63,8 @@ export class OakletNestService {
       firstName: process.env.DEFAULT_CLIENT_FIRST_NAME || "Survey",
       lastName: process.env.DEFAULT_CLIENT_LAST_NAME || "User",
       email,
-      phone: process.env.DEFAULT_CLIENT_PHONE || "",
-      dateOfBirth: process.env.DEFAULT_CLIENT_DOB || "",
+      phone: process.env.DEFAULT_CLIENT_PHONE || "000-000-0000",
+      dateOfBirth: process.env.DEFAULT_CLIENT_DOB || "1990-01-01",
       status: "Pending",
       address: {
         street: process.env.DEFAULT_CLIENT_STREET || "",

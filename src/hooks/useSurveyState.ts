@@ -69,8 +69,6 @@ export const useSurveyState = () => {
     return visibleQuestions[surveyState.currentStep] || null;
   };
 
-  // Use consistent total steps (all questions minus conditional ones that won't show)
-  // Total: 8 questions, but Q2 and Q4 are mutually exclusive, so max visible is 7
   const actualTotalSteps = 7;
 
   const canGoNext = (): boolean => {
@@ -131,7 +129,6 @@ export const useSurveyState = () => {
       isComplete: false,
       totalSteps: actualTotalSteps
     });
-    // Force page reload to ensure clean state
     window.location.reload();
   };
 

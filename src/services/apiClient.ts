@@ -46,14 +46,9 @@ class ApiClient {
 
   async submitSurvey(data: SurveySubmissionRequest): Promise<SurveySubmissionResponse> {
     try {
-      console.log('🔧 API Client - Submitting to:', `${config.api.baseUrl}/api/survey/submit`);
-      console.log('🔧 API Client - Data:', data);
       const response: AxiosResponse<SurveySubmissionResponse> = await this.api.post('/api/survey/submit', data);
-      console.log('🔧 API Client - Response:', response.data);
       return response.data;
     } catch (error: any) {
-      console.error('🔧 API Client - Error submitting survey:', error);
-      console.error('🔧 API Client - Error details:', error.response?.data);
       return {
         success: false,
         error: error.response?.data?.error || error.message || 'Network error'

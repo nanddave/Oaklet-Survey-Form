@@ -80,7 +80,6 @@ export class SurveyController {
     }
 
     try {
-      // Check Question_Responses table for existing email
       const existingSubmissions = await this.dynamodb.getSubmissionsByEmail(email);
       const isAvailable = existingSubmissions.length === 0;
 
@@ -91,14 +90,21 @@ export class SurveyController {
         existingCount: existingSubmissions.length
       });
 
-      // Log audit event
-      await this.audit.logEmailCheck(
-        email,
-        process.env.DEFAULT_ORGANIZATION_ID || '',
-        isAvailable,
-        req.ip,
-        req.get('User-Agent')
-      );
+      try {
+        await this.audit.logEmailCheck(
+          email,
+          process.env.DEFAULT_ORGANIZATION_ID || '',
+          isAvailable,
+          req.ip,
+          req.get('User-Agent')
+        );
+      } catch (auditError) {
+        logger.error('audit.logEmailCheck failed', {
+          email,
+          organizationId: process.env.DEFAULT_ORGANIZATION_ID || '',
+          error: auditError instanceof Error ? auditError.message : 'Unknown error'
+        });
+      }
 
       res.json({
         success: true,
@@ -135,7 +141,6 @@ export class SurveyController {
     try {
       const { responses, appointment, organizationId = process.env.DEFAULT_ORGANIZATION_ID || '' }: SurveySubmissionRequest = req.body;
 
-      // Prepare submission data for validation
       const submissionData = {
         responses: {
           firstName: responses.firstName,
@@ -158,7 +163,6 @@ export class SurveyController {
         submissionId
       };
 
-      // Validate submission using validation service
       const validationResult = await this.validation.validateSubmission(submissionData);
       
       if (!validationResult.isValid) {
@@ -168,7 +172,6 @@ export class SurveyController {
           warnings: validationResult.warnings
         });
 
-        // Log validation failure
         await this.audit.logValidationFailure(
           submissionId,
           responses.email,
@@ -187,7 +190,6 @@ export class SurveyController {
         return;
       }
 
-      // Log warnings if any
       if (validationResult.warnings.length > 0) {
         logger.info('Survey validation warnings', {
           submissionId,
@@ -195,7 +197,6 @@ export class SurveyController {
         });
       }
 
-      // 1. Submit survey to Nest with retry logic
       const nestResult = await this.retry.executeWithConditionalRetry(
         () => this.oakletNest.submitSurvey({
           responses: {
@@ -230,7 +231,6 @@ export class SurveyController {
         throw nestResult.error || new Error('Failed to submit survey to Oaklet Nest');
       }
 
-      // 3. Encrypt sensitive health data
       const encryptedPHI = await this.encryption.encryptPHI({
         email: responses.email,
         healthResponses: {
@@ -241,13 +241,11 @@ export class SurveyController {
         }
       });
 
-      // 4. Save survey submission to DynamoDB (flat structure for DynamoDB)
       const submission = {
         submissionId,
         submissionDate: new Date().toISOString(),
         patientEmail: responses.email,
         organizationId,
-        // Survey responses (flat fields)
         q1: responses.q1,
         q2: responses.q2,
         q3: responses.q3,
@@ -257,16 +255,13 @@ export class SurveyController {
         firstName: responses.firstName,
         lastName: responses.lastName,
         email: responses.email,
-        // Appointment details (flat fields)
         appointmentId: nestResult.result!.appointmentId,
         appointmentDate: appointment.appointmentDate,
         appointmentTime: appointment.appointmentTime,
         sessionType: process.env.DEFAULT_SESSION_TYPE,
         appointmentStatus: "scheduled",
-        // Client info (flat fields)
         clientId: nestResult.result!.clientId,
         clientType: "pre-registration",
-        // Metadata (flat fields)
         completedAt: new Date().toISOString(),
         version: "1.0",
         ipAddress: req.ip,
@@ -276,7 +271,6 @@ export class SurveyController {
 
       await this.dynamodb.saveSurveySubmission(submission);
 
-      // 5. Return success response
       const confirmationNumber = nestResult.result!.confirmationNumber;
       
       logger.info('Survey submission completed successfully', {
@@ -286,15 +280,23 @@ export class SurveyController {
         confirmationNumber
       });
 
-      // Log successful submission
-      await this.audit.logSurveySubmission(
-        submissionId,
-        responses.email,
-        organizationId,
-        req.ip,
-        req.get('User-Agent'),
-        true
-      );
+      try {
+        await this.audit.logSurveySubmission(
+          submissionId,
+          responses.email,
+          organizationId,
+          req.ip,
+          req.get('User-Agent'),
+          true
+        );
+      } catch (auditError) {
+        logger.error('audit.logSurveySubmission failed', {
+          submissionId,
+          email: responses.email,
+          organizationId,
+          error: auditError instanceof Error ? auditError.message : 'Unknown error'
+        });
+      }
 
       const nextSteps = process.env.SURVEY_NEXT_STEPS 
         ? process.env.SURVEY_NEXT_STEPS.split(',')
@@ -316,7 +318,6 @@ export class SurveyController {
     } catch (error) {
       const errorObj = error instanceof Error ? error : new Error(String(error));
       
-      // Map error to user-friendly response
       const errorMapping = this.errorMapping.mapError(errorObj);
       
       logger.error('Survey submission failed', {
@@ -327,7 +328,6 @@ export class SurveyController {
         logLevel: errorMapping.logLevel
       });
 
-      // Log failed submission
       try {
         await this.audit.logSurveySubmission(
           submissionId,
@@ -368,7 +368,6 @@ export class SurveyController {
         return;
       }
 
-      // Don't return encrypted PHI in GET requests for security
       const { encryptedPHI, ...safeSubmission } = submission;
 
       res.json({
@@ -427,7 +426,6 @@ export class SurveyController {
 
   async healthCheck(req: Request, res: Response): Promise<void> {
     try {
-      // Test all services
       const [kmsTest, nestTest] = await Promise.allSettled([
         this.encryption.testEncryption(),
         this.oakletNest.testConnection()

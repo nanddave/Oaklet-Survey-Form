@@ -9,13 +9,14 @@ export class NestAuthService {
   private tokenExpiry: Date | null = null;
 
   constructor() {
-    this.baseUrl = process.env.OAKLET_NEST_URL;
-    this.authEmail = process.env.NEST_AUTH_EMAIL || '';
-    this.authPassword = process.env.NEST_AUTH_PASSWORD || '';
-    
-    if (!this.baseUrl) {
+    const baseUrl = process.env.OAKLET_NEST_URL;
+    if (!baseUrl) {
       throw new Error('OAKLET_NEST_URL environment variable is required');
     }
+    this.baseUrl = baseUrl;
+    
+    this.authEmail = process.env.NEST_AUTH_EMAIL || '';
+    this.authPassword = process.env.NEST_AUTH_PASSWORD || '';
     
     if (!this.authEmail || !this.authPassword) {
       throw new Error('NEST_AUTH_EMAIL and NEST_AUTH_PASSWORD are required');

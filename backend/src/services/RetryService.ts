@@ -168,15 +168,17 @@ export class RetryService {
     const config = { ...this.defaultOptions, ...options };
     const startTime = Date.now();
     let lastError: Error | undefined;
+    let attemptsPerformed = 0;
 
     for (let attempt = 1; attempt <= config.maxAttempts; attempt++) {
+      attemptsPerformed = attempt;
       try {
         const result = await operation();
         
         return {
           success: true,
           result,
-          attempts: attempt,
+          attempts: attemptsPerformed,
           totalTime: Date.now() - startTime
         };
 
@@ -212,7 +214,7 @@ export class RetryService {
     return {
       success: false,
       error: lastError,
-      attempts: config.maxAttempts,
+      attempts: attemptsPerformed,
       totalTime: Date.now() - startTime
     };
   }

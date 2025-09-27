@@ -39,9 +39,6 @@ export const useLocalStorage = () => {
     setSubmissions(updated);
     localStorage.setItem('surveySubmissions', JSON.stringify(updated));
     
-    if (import.meta.env.DEV) {
-      console.log('✅ Submission stored locally:', newSubmission.id);
-    }
     
     return newSubmission;
   };
@@ -108,18 +105,13 @@ export const useLocalStorage = () => {
     setSubmissions([]);
     localStorage.removeItem('surveySubmissions');
     localStorage.clear(); // Clear all localStorage
-    if (import.meta.env.DEV) {
-      console.log('🧹 Cache cleared on server restart');
-    }
   };
 
-  // Clear cache on component mount (server restart simulation)
   useEffect(() => {
-    // Only clear in development mode or when explicitly requested
     if (import.meta.env.DEV) {
       const lastClear = localStorage.getItem('lastCacheClear');
       const now = Date.now();
-      const oneDayAgo = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+      const oneDayAgo = 24 * 60 * 60 * 1000;
       
       if (!lastClear || (now - parseInt(lastClear)) > oneDayAgo) {
         clearCache();

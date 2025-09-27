@@ -6,7 +6,6 @@ import { ContactQuestion } from '../questions/ContactQuestion';
 import { SchedulingQuestion } from '../questions/SchedulingQuestion';
 import { useSurveyState } from '../../hooks/useSurveyState';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
-// import { validateEmail } from '../../utils/validation';
 import { apiClient } from '../../services/apiClient';
 import { config } from '../../config/environment';
 import { useEffect, useState, useRef } from 'react';
@@ -30,11 +29,9 @@ export const SurveyContainer = () => {
   const [submissionResult, setSubmissionResult] = useState<any>(null);
   const [submissionData, setSubmissionData] = useState<any>(null);
   
-  // Prevent double submission due to React StrictMode
   const submissionRef = useRef(false);
   const [submissionState, setSubmissionState] = useState<'idle' | 'submitting' | 'completed' | 'error'>('idle');
 
-  // Handle survey completion and submission to backend
   useEffect(() => {
     if (surveyState.isComplete && 
         surveyState.responses && 
@@ -45,7 +42,6 @@ export const SurveyContainer = () => {
   }, [surveyState.isComplete, surveyState.responses, submissionState]);
 
   const handleSurveyCompletion = async () => {
-    // Prevent double submission
     if (submissionRef.current || submissionState !== 'idle') {
       return;
     }
@@ -56,7 +52,6 @@ export const SurveyContainer = () => {
     setSubmissionError(null);
 
     try {
-      // Extract contact information from contactInfo response
       let contactData = { firstName: '', lastName: '', email: '' };
       try {
         if (surveyState.responses.contactInfo) {
@@ -66,7 +61,6 @@ export const SurveyContainer = () => {
         console.error('Error parsing contact data:', e);
       }
 
-      // Prepare submission data
       const submissionData = {
         responses: {
           q1: surveyState.responses.q1 || '',
@@ -88,19 +82,13 @@ export const SurveyContainer = () => {
         organizationId: config.organization.defaultId
       };
 
-      // Store submission data for display
       setSubmissionData(submissionData);
-
-      // Submit to backend
-      console.log('🔧 Submitting Survey Data:', submissionData);
       const result = await apiClient.submitSurvey(submissionData);
-      console.log('🔧 Survey Submission Result:', result);
 
       if (result.success) {
         setSubmissionResult(result);
         setSubmissionState('completed');
         
-        // Store locally for backup
         addSubmission(surveyState.responses, {
           appointmentId: result.appointmentId,
           appointmentDate: submissionData.appointment.appointmentDate,
@@ -331,8 +319,6 @@ export const SurveyContainer = () => {
             value={currentValue}
             onChange={(value) => {
               updateResponse(currentQuestion.id, value);
-              // Auto-advance immediately since we have the response value
-              // Don't rely on canGoNext() since state update is async
               if (value) {
                 setTimeout(() => nextStep(), 300);
               }
@@ -350,8 +336,6 @@ export const SurveyContainer = () => {
             value={currentValue}
             onChange={(value) => {
               updateResponse(currentQuestion.id, value);
-              // Auto-advance immediately since we have the response value
-              // Don't rely on canGoNext() since state update is async
               if (value) {
                 setTimeout(() => nextStep(), 500);
               }
@@ -372,11 +356,6 @@ export const SurveyContainer = () => {
         
       case 'scheduling':
         const orgId = surveyState.responses.organizationId || config.organization.defaultId;
-        console.log('🔧 SurveyContainer Debug:', { 
-          orgIdFromState: surveyState.responses.organizationId,
-          orgIdFromConfig: config.organization.defaultId,
-          finalOrgId: orgId 
-        });
         return (
           <SchedulingQuestion
             questionId={currentQuestion.id}

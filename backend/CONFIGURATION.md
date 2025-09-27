@@ -21,9 +21,21 @@ QUESTIONNAIRE_RESPONSES_TABLE=Oaklet_Nest_Questionnaire_Responses
 AUDIT_TABLE=Oaklet_Nest_AuditTrail
 
 # Oaklet Nest Configuration
-OAKLET_NEST_BASE_URL=http://localhost:3000
+OAKLET_NEST_URL=http://localhost:3001
 DEFAULT_ORGANIZATION_ID=your_org_id_here
 DEFAULT_SESSION_TYPE=Initial Consultation
+
+# Default Client Data (for pre-registration)
+DEFAULT_CLIENT_FIRST_NAME=Survey
+DEFAULT_CLIENT_LAST_NAME=User
+DEFAULT_CLIENT_PHONE=
+DEFAULT_CLIENT_DOB=
+DEFAULT_CLIENT_STREET=
+DEFAULT_CLIENT_CITY=
+DEFAULT_CLIENT_ZIP=
+
+# Widget Configuration
+SURVEY_WIDGET_URL=http://localhost:5174
 ```
 
 ### Optional Configuration

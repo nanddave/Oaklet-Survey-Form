@@ -13,7 +13,6 @@ interface SchedulingQuestionProps {
   organizationId?: string;
 }
 
-// Real availability data from Oaklet-Nest API
 interface AvailabilityData {
   [date: string]: string[];
 }
@@ -23,18 +22,15 @@ export const SchedulingQuestion = ({
   onChange,
   organizationId = config.organization.defaultId
 }: SchedulingQuestionProps) => {
-  console.log('🔧 SchedulingQuestion Debug:', { organizationId });
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [availableSlots, setAvailableSlots] = useState<AvailabilityData>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch availability from Oaklet-Nest API
   const fetchAvailability = async (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
     
-    // Don't fetch if we already have data for this date
     if (availableSlots[dateStr]) return;
     
     setLoading(true);
@@ -59,8 +55,7 @@ export const SchedulingQuestion = ({
       }
     } catch (err) {
       console.error('Error fetching availability:', err);
-      setError(`Unable to load available times for ${dateStr}`);
-      // Clear cached data for this date on error
+      setError(`Unable to load available times`);
       setAvailableSlots(prev => {
         const updated = { ...prev };
         delete updated[dateStr];
@@ -71,7 +66,6 @@ export const SchedulingQuestion = ({
     }
   };
 
-  // Load availability for next 7 days on component mount (optimized)
   useEffect(() => {
     const today = new Date();
     for (let i = 1; i <= 7; i++) {
@@ -91,13 +85,11 @@ export const SchedulingQuestion = ({
   const handleTimeSelect = (time: string) => {
     if (selectedDate) {
       setSelectedTime(time);
-      // Set the appointment value for display but don't auto-book
       const appointmentValue = `${format(selectedDate, 'yyyy-MM-dd')}T${timeTo24Hour(time)}:00Z`;
       onChange(appointmentValue);
     }
   };
 
-  // Helper function to convert time to 24-hour format
   const timeTo24Hour = (time: string): string => {
     const [timePart, period] = time.split(' ');
     const [hours, minutes] = timePart.split(':');
@@ -118,7 +110,6 @@ export const SchedulingQuestion = ({
   };
 
   const tileDisabled = ({ date }: { date: Date }) => {
-    // Disable past dates and dates with no available slots
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
