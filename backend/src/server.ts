@@ -32,10 +32,11 @@ app.use(helmet({
 }));
 
 // CORS configuration
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
-  'http://localhost:5173',
-  'http://localhost:5174'
-];
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+
+if (allowedOrigins.length === 0) {
+  throw new Error('ALLOWED_ORIGINS environment variable is required');
+}
 
 app.use(cors({
   origin: allowedOrigins,
@@ -126,7 +127,7 @@ app.get('/widget', (req, res) => {
       </style>
     </head>
     <body>
-      <iframe src="http://localhost:5174?org=${org}&mode=widget" 
+      <iframe src="${process.env.SURVEY_WIDGET_URL}?org=${org}&mode=widget" 
               title="Oaklet Survey">
       </iframe>
     </body>

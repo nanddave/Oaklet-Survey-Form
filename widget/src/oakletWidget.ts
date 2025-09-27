@@ -133,8 +133,8 @@ export class OakletSurveyWidget {
     
     // In production, this would be the actual survey URL
     const surveyUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://survey.oaklet.com'
-      : 'http://localhost:5174';
+      ? process.env.PRODUCTION_SURVEY_URL
+      : process.env.DEVELOPMENT_SURVEY_URL;
     
     return `${surveyUrl}/widget?${params}`;
   }
@@ -166,9 +166,9 @@ export class OakletSurveyWidget {
     window.addEventListener('message', (event) => {
       // Security: verify origin
       const allowedOrigins = [
-        'http://localhost:5174',
-        'https://survey.oaklet.com'
-      ];
+        process.env.DEVELOPMENT_SURVEY_URL,
+        process.env.PRODUCTION_SURVEY_URL
+      ].filter(Boolean);
       
       if (!allowedOrigins.includes(event.origin)) {
         console.warn('Oaklet Widget: Message from unauthorized origin', event.origin);

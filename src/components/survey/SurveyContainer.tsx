@@ -105,7 +105,7 @@ export const SurveyContainer = () => {
           appointmentId: result.appointmentId,
           appointmentDate: submissionData.appointment.appointmentDate,
           appointmentTime: submissionData.appointment.appointmentTime,
-          sessionType: 'Initial Consultation'
+          sessionType: config.session?.defaultType || 'Initial Consultation'
         });
 
         // Clean up localStorage after successful submission
@@ -227,7 +227,7 @@ export const SurveyContainer = () => {
                               <strong>Appointment Time:</strong> {submissionData?.appointment?.appointmentTime || 'N/A'}
                             </p>
                             <p style={{ margin: '0.25rem 0' }}>
-                              <strong>Session Type:</strong> Initial Consultation
+                              <strong>Session Type:</strong> {config.session?.defaultType || 'Initial Consultation'}
                             </p>
                           </>
                         );

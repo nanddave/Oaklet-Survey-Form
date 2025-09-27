@@ -261,7 +261,7 @@ export class SurveyController {
         appointmentId: nestResult.result!.appointmentId,
         appointmentDate: appointment.appointmentDate,
         appointmentTime: appointment.appointmentTime,
-        sessionType: process.env.DEFAULT_SESSION_TYPE || "Initial Consultation",
+        sessionType: process.env.DEFAULT_SESSION_TYPE,
         appointmentStatus: "scheduled",
         // Client info (flat fields)
         clientId: nestResult.result!.clientId,

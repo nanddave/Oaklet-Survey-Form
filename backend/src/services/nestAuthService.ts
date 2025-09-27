@@ -9,9 +9,13 @@ export class NestAuthService {
   private tokenExpiry: Date | null = null;
 
   constructor() {
-    this.baseUrl = process.env.OAKLET_NEST_URL || 'http://localhost:3001';
+    this.baseUrl = process.env.OAKLET_NEST_URL;
     this.authEmail = process.env.NEST_AUTH_EMAIL || '';
     this.authPassword = process.env.NEST_AUTH_PASSWORD || '';
+    
+    if (!this.baseUrl) {
+      throw new Error('OAKLET_NEST_URL environment variable is required');
+    }
     
     if (!this.authEmail || !this.authPassword) {
       throw new Error('NEST_AUTH_EMAIL and NEST_AUTH_PASSWORD are required');

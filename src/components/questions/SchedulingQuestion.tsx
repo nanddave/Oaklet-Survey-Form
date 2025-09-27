@@ -21,7 +21,7 @@ interface AvailabilityData {
 export const SchedulingQuestion = ({ 
   value, 
   onChange,
-  organizationId = 'be750795-0b43-43e4-8b7a-cfa9a71b23ef'
+  organizationId = config.organization.defaultId
 }: SchedulingQuestionProps) => {
   console.log('🔧 SchedulingQuestion Debug:', { organizationId });
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);

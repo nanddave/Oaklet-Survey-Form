@@ -27,12 +27,12 @@ export interface SurveyConfig {
 // Load environment variables with proper defaults
 const config: SurveyConfig = {
   api: {
-    baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002',
+    baseUrl: import.meta.env.VITE_API_BASE_URL,
     serviceToken: import.meta.env.VITE_SERVICE_TOKEN || '',
     timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || '30000', 10)
   },
   organization: {
-    defaultId: import.meta.env.VITE_DEFAULT_ORG_ID || 'be750795-0b43-43e4-8b7a-cfa9a71b23ef'
+    defaultId: import.meta.env.VITE_DEFAULT_ORG_ID
   },
   client: {
     landingPageMode: import.meta.env.VITE_LANDING_PAGE_MODE === 'true',
@@ -45,24 +45,26 @@ const config: SurveyConfig = {
 
 // Validation
 const validateConfig = (): void => {
-  console.log('🔧 Frontend Config Debug:', {
-    baseUrl: config.api.baseUrl,
-    orgId: config.organization.defaultId,
-    envOrgId: import.meta.env.VITE_DEFAULT_ORG_ID,
-    isDev: import.meta.env.DEV
-  });
+  const requiredVars = [
+    'VITE_API_BASE_URL',
+    'VITE_DEFAULT_ORG_ID'
+  ];
   
-  if (!config.api.baseUrl) {
-    console.error('VITE_API_BASE_URL is required');
-  }
+  const missing = requiredVars.filter(varName => !import.meta.env[varName]);
   
-  if (!config.organization.defaultId) {
-    console.error('VITE_DEFAULT_ORG_ID is required');
+  if (missing.length > 0) {
+    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
   }
   
   if (!config.api.serviceToken && import.meta.env.PROD) {
-    console.error('VITE_SERVICE_TOKEN is required in production');
+    throw new Error('VITE_SERVICE_TOKEN is required in production');
   }
+  
+  console.log('🔧 Frontend Config Debug:', {
+    baseUrl: config.api.baseUrl,
+    orgId: config.organization.defaultId,
+    isDev: import.meta.env.DEV
+  });
 };
 
 validateConfig();

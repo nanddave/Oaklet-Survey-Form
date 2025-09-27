@@ -50,7 +50,7 @@ export class OakletNestService {
   private nestAuth: NestAuthService;
 
   constructor() {
-    this.baseUrl = process.env.OAKLET_NEST_URL || 'http://localhost:3001';
+    this.baseUrl = process.env.OAKLET_NEST_URL;
     this.nestAuth = new NestAuthService();
 
     if (!this.baseUrl) {
@@ -60,17 +60,17 @@ export class OakletNestService {
 
   async createPreRegistrationClient(email: string, state: string, surveySubmissionId: string): Promise<CreatedClient> {
     const preRegClientData: PreRegistrationClient = {
-      firstName: "Pre-Registration",
-      lastName: "Survey User",
+      firstName: process.env.DEFAULT_CLIENT_FIRST_NAME || "Survey",
+      lastName: process.env.DEFAULT_CLIENT_LAST_NAME || "User",
       email,
-      phone: "000-000-0000",
-      dateOfBirth: "1990-01-01",
+      phone: process.env.DEFAULT_CLIENT_PHONE || "",
+      dateOfBirth: process.env.DEFAULT_CLIENT_DOB || "",
       status: "Pending",
       address: {
-        street: "TBD",
-        city: "TBD", 
+        street: process.env.DEFAULT_CLIENT_STREET || "",
+        city: process.env.DEFAULT_CLIENT_CITY || "",
         state,
-        zipCode: "00000"
+        zipCode: process.env.DEFAULT_CLIENT_ZIP || ""
       },
       metadata: {
         referralSource: "survey-form",
