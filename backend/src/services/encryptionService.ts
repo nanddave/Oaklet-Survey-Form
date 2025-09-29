@@ -2,18 +2,18 @@ import { KMSClient, EncryptCommand, DecryptCommand } from '@aws-sdk/client-kms';
 import { logger } from '../config/logger';
 
 export interface SensitiveData {
-  email: string;
+  email: string; // PHI-FIELD
   healthResponses: {
-    psychiatric_diagnosis_conditional?: string;
-    medical_diagnosis_conditional?: string;
-    psychiatric_hospitalizations_conditional?: string;
-    family_psychiatric_history_conditional?: string;
-    academic_difficulties_conditional?: string;
-    childhood_trauma_conditional?: string;
-    anhedonia_expanded_conditional?: string;
-    home_stress_trauma_conditional?: string;
-    abuse_exposure_conditional?: string;
-    other_information?: string;
+    psychiatric_diagnosis_conditional?: string; // PHI-FIELD
+    medical_diagnosis_conditional?: string; // PHI-FIELD
+    psychiatric_hospitalizations_conditional?: string; // PHI-FIELD
+    family_psychiatric_history_conditional?: string; // PHI-FIELD
+    academic_difficulties_conditional?: string; // PHI-FIELD
+    childhood_trauma_conditional?: string; // PHI-FIELD
+    anhedonia_expanded_conditional?: string; // PHI-FIELD
+    home_stress_trauma_conditional?: string; // PHI-FIELD
+    abuse_exposure_conditional?: string; // PHI-FIELD
+    other_information?: string; // PHI-FIELD
   };
 }
 

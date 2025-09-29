@@ -45,12 +45,13 @@ const config: SurveyConfig = {
 
 // Validation
 const validateConfig = (): void => {
+  const env = import.meta.env as Record<string, string | undefined>;
   const requiredVars = [
     'VITE_API_BASE_URL',
     'VITE_DEFAULT_ORG_ID'
   ];
   
-  const missing = requiredVars.filter(varName => !import.meta.env[varName]);
+  const missing = requiredVars.filter(varName => !env[varName]);
   
   if (missing.length > 0) {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`);

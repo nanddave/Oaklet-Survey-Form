@@ -32,10 +32,13 @@ app.use(helmet({
 }));
 
 // CORS configuration
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ?.split(',')
+  .map(origin => origin.trim())
+  .filter(origin => origin.length > 0) || [];
 
 if (allowedOrigins.length === 0) {
-  throw new Error('ALLOWED_ORIGINS environment variable is required');
+  throw new Error('ALLOWED_ORIGINS environment variable is required and must contain at least one valid origin');
 }
 
 app.use(cors({

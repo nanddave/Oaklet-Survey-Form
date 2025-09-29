@@ -286,9 +286,49 @@ export class SurveyValidationService {
    * Validate appointment data
    */
   private async validateAppointmentData(appointment: SurveySubmissionData['appointment']): Promise<void> {
-    // Parse YYYY-MM-DD string into local date components
-    const [year, month, day] = appointment.appointmentDate.split('-').map(Number);
+    // Validate appointment date format first
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(appointment.appointmentDate)) {
+      throw new SurveyValidationError('Invalid appointment date format. Expected YYYY-MM-DD', 'appointmentDate');
+    }
+
+    // Parse YYYY-MM-DD string into local date components with validation
+    const dateParts = appointment.appointmentDate.split('-');
+    if (dateParts.length !== 3) {
+      throw new SurveyValidationError('Invalid appointment date format', 'appointmentDate');
+    }
+
+    const [yearStr, monthStr, dayStr] = dateParts;
+    const year = parseInt(yearStr, 10);
+    const month = parseInt(monthStr, 10);
+    const day = parseInt(dayStr, 10);
+
+    // Validate date components
+    if (isNaN(year) || isNaN(month) || isNaN(day)) {
+      throw new SurveyValidationError('Invalid appointment date values', 'appointmentDate');
+    }
+
+    if (year < 2024 || year > 2030) {
+      throw new SurveyValidationError('Appointment year must be between 2024 and 2030', 'appointmentDate');
+    }
+
+    if (month < 1 || month > 12) {
+      throw new SurveyValidationError('Invalid appointment month', 'appointmentDate');
+    }
+
+    if (day < 1 || day > 31) {
+      throw new SurveyValidationError('Invalid appointment day', 'appointmentDate');
+    }
+
+    // Create date and validate it's actually valid (handles Feb 30, etc.)
     const appointmentDate = new Date(year, month - 1, day); // Local midnight
+    
+    // Check if the date is actually valid (Date constructor can create invalid dates)
+    if (appointmentDate.getFullYear() !== year || 
+        appointmentDate.getMonth() !== month - 1 || 
+        appointmentDate.getDate() !== day) {
+      throw new SurveyValidationError('Invalid appointment date (e.g., February 30th)', 'appointmentDate');
+    }
 
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Local midnight

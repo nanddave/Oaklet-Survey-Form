@@ -148,7 +148,8 @@ export const SurveyContainer = () => {
         setSubmissionResult(result);
         setSubmissionState('completed');
         
-        addSubmission(surveyState.responses, {
+        // Only store non-PHI appointment metadata
+        addSubmission({}, {
           appointmentId: result.appointmentId,
           appointmentDate: submissionData.appointment.appointmentDate,
           appointmentTime: submissionData.appointment.appointmentTime,
@@ -183,11 +184,14 @@ export const SurveyContainer = () => {
       setSubmissionState('error');
       
       // Still store locally as backup
-      addSubmission(surveyState.responses, {
-        appointmentDate: surveyState.responses.scheduling?.split('T')[0],
-        appointmentTime: surveyState.responses.scheduling?.split('T')[1]?.replace(':00Z', ''),
-        sessionType: 'Initial Consultation'
-      });
+      // Only store non-PHI appointment metadata in development
+      if (import.meta.env.DEV) {
+        addSubmission({}, {
+          appointmentDate: surveyState.responses.scheduling?.split('T')[0],
+          appointmentTime: surveyState.responses.scheduling?.split('T')[1]?.substring(0, 5),
+          sessionType: 'Initial Consultation'
+        });
+      }
 
       // Notify parent window of error
       if (window.parent !== window) {
