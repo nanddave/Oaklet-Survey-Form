@@ -40,7 +40,8 @@ export const SchedulingQuestion = ({
       const response = await axios.get(`${config.api.baseUrl}/api/survey/availability`, {
         params: {
           date: dateStr,
-          organizationId: organizationId
+          organizationId: organizationId,
+          _t: Date.now() // Cache-busting parameter
         }
       });
       
@@ -54,7 +55,9 @@ export const SchedulingQuestion = ({
         setError(`Failed to fetch availability for ${dateStr}`);
       }
     } catch (err) {
-      console.error('Error fetching availability:', err);
+      if (import.meta.env.DEV) {
+        // Error fetching availability - using empty availability
+      }
       setError(`Unable to load available times`);
       setAvailableSlots(prev => {
         const updated = { ...prev };
@@ -85,7 +88,8 @@ export const SchedulingQuestion = ({
   const handleTimeSelect = (time: string) => {
     if (selectedDate) {
       setSelectedTime(time);
-      const appointmentValue = `${format(selectedDate, 'yyyy-MM-dd')}T${timeTo24Hour(time)}:00Z`;
+      // Send local time without Z suffix - backend will convert to UTC
+      const appointmentValue = `${format(selectedDate, 'yyyy-MM-dd')}T${timeTo24Hour(time)}:00`;
       onChange(appointmentValue);
     }
   };

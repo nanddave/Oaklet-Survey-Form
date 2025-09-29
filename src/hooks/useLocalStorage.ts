@@ -21,7 +21,7 @@ export const useLocalStorage = () => {
       try {
         setSubmissions(JSON.parse(stored));
       } catch (error) {
-        console.error('Error parsing stored submissions:', error);
+        // Error parsing stored submissions - using empty array
         localStorage.removeItem('surveySubmissions');
       }
     }

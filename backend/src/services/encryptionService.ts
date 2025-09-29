@@ -4,10 +4,16 @@ import { logger } from '../config/logger';
 export interface SensitiveData {
   email: string;
   healthResponses: {
-    q2?: string;
-    q3: string;
-    q4?: string;
-    q5: string;
+    psychiatric_diagnosis_conditional?: string;
+    medical_diagnosis_conditional?: string;
+    psychiatric_hospitalizations_conditional?: string;
+    family_psychiatric_history_conditional?: string;
+    academic_difficulties_conditional?: string;
+    childhood_trauma_conditional?: string;
+    anhedonia_expanded_conditional?: string;
+    home_stress_trauma_conditional?: string;
+    abuse_exposure_conditional?: string;
+    other_information?: string;
   };
 }
 
@@ -100,8 +106,8 @@ export class SurveyEncryptionService {
     const testData: SensitiveData = {
       email: 'encryption.test@oaklet.internal',
       healthResponses: {
-        q3: 'test response',
-        q5: 'test response 2'
+        psychiatric_diagnosis_conditional: 'test psychiatric condition',
+        medical_diagnosis_conditional: 'test medical condition'
       }
     };
 
@@ -109,7 +115,7 @@ export class SurveyEncryptionService {
     const decrypted = await this.decryptPHI(encrypted);
 
     const isValid = decrypted.email === testData.email && 
-                   decrypted.healthResponses.q3 === testData.healthResponses.q3;
+                   decrypted.healthResponses.psychiatric_diagnosis_conditional === testData.healthResponses.psychiatric_diagnosis_conditional;
 
     logger.info('Encryption test result', { isValid });
     return isValid;

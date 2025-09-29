@@ -19,7 +19,7 @@ export const useSurveyState = () => {
         };
       } catch (error) {
         if (import.meta.env.DEV) {
-          console.error('Failed to parse saved survey data:', error);
+          // Failed to parse saved survey data - using defaults
         }
       }
     }
@@ -69,7 +69,7 @@ export const useSurveyState = () => {
     return visibleQuestions[surveyState.currentStep] || null;
   };
 
-  const actualTotalSteps = 7;
+  const actualTotalSteps = surveyQuestions.length;
 
   const canGoNext = (): boolean => {
     const currentQuestion = getCurrentQuestion();
@@ -87,6 +87,16 @@ export const useSurveyState = () => {
         return contactData._emailStatus !== 'taken' && contactData._canProceed !== false;
       } catch {
         return false;
+      }
+    }
+    
+    // Special validation for conditional fields
+    if (currentQuestion.type === 'yesno' && currentQuestion.conditionalFields) {
+      const showConditionalField = response === currentQuestion.conditionalFields.showIf.answer;
+      if (showConditionalField) {
+        const conditionalFieldId = `${currentQuestion.id}_conditional`;
+        const conditionalResponse = getResponse(conditionalFieldId);
+        return !!(conditionalResponse && conditionalResponse.trim() !== '');
       }
     }
     

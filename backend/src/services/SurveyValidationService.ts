@@ -22,15 +22,60 @@ export interface ValidationResult {
 
 export interface SurveySubmissionData {
   responses: {
+    // ADHD Questionnaire Responses
+    psychiatric_diagnosis: string;
+    medical_diagnosis: string;
+    current_medications: string;
+    psychiatric_hospitalizations: string;
+    family_psychiatric_history: string;
+    family_adhd_history: string;
+    academic_difficulties: string;
+    hyperactive_impulsive: string;
+    social_difficulties: string;
+    home_stress: string;
+    childhood_trauma: string;
+    careless_mistakes: string;
+    sustaining_attention: string;
+    restless_fidgety: string;
+    interrupt_others: string;
+    procrastinate: string;
+    lose_things: string;
+    finish_details: string;
+    organize_tasks: string;
+    remember_appointments: string;
+    delay_starting: string;
+    fidget_sitting: string;
+    overly_active: string;
+    elevated_mood: string;
+    increased_energy: string;
+    less_sleep: string;
+    more_talkative: string;
+    risky_behaviors: string;
+    mood_problems: string;
+    nervous_anxious: string;
+    unable_control_worry: string;
+    worrying_too_much: string;
+    trouble_relaxing: string;
+    restlessness: string;
+    irritability: string;
+    fear_awful: string;
+    little_interest: string;
+    feeling_down: string;
+    sleep_problems: string;
+    feeling_tired: string;
+    appetite_problems: string;
+    feeling_bad_self: string;
+    trouble_concentrating: string;
+    psychomotor_changes: string;
+    suicidal_thoughts: string;
+    anhedonia_expanded: string;
+    home_stress_trauma: string;
+    abuse_exposure: string;
+    other_information: string;
+    // Contact and scheduling
     firstName: string;
     lastName: string;
     email: string;
-    q1: string;
-    q2?: string;
-    q3: string;
-    q4?: string;
-    q5: string;
-    location: string;
     scheduling: string;
   };
   appointment: {
@@ -91,7 +136,7 @@ export class SurveyValidationService {
 
       logger.info('Survey validation completed', {
         submissionId: data.submissionId,
-        email: data.responses.email,
+        hasEmail: !!data.responses.email,
         isValid: errors.length === 0,
         errorCount: errors.length,
         warningCount: warnings.length
@@ -125,10 +170,54 @@ export class SurveyValidationService {
       { field: 'firstName', value: data.responses.firstName },
       { field: 'lastName', value: data.responses.lastName },
       { field: 'email', value: data.responses.email },
-      { field: 'q1', value: data.responses.q1 },
-      { field: 'q3', value: data.responses.q3 },
-      { field: 'q5', value: data.responses.q5 },
-      { field: 'location', value: data.responses.location },
+      { field: 'psychiatric_diagnosis', value: data.responses.psychiatric_diagnosis },
+      { field: 'medical_diagnosis', value: data.responses.medical_diagnosis },
+      { field: 'current_medications', value: data.responses.current_medications },
+      { field: 'psychiatric_hospitalizations', value: data.responses.psychiatric_hospitalizations },
+      { field: 'family_psychiatric_history', value: data.responses.family_psychiatric_history },
+      { field: 'family_adhd_history', value: data.responses.family_adhd_history },
+      { field: 'academic_difficulties', value: data.responses.academic_difficulties },
+      { field: 'hyperactive_impulsive', value: data.responses.hyperactive_impulsive },
+      { field: 'social_difficulties', value: data.responses.social_difficulties },
+      { field: 'home_stress', value: data.responses.home_stress },
+      { field: 'childhood_trauma', value: data.responses.childhood_trauma },
+      { field: 'careless_mistakes', value: data.responses.careless_mistakes },
+      { field: 'sustaining_attention', value: data.responses.sustaining_attention },
+      { field: 'restless_fidgety', value: data.responses.restless_fidgety },
+      { field: 'interrupt_others', value: data.responses.interrupt_others },
+      { field: 'procrastinate', value: data.responses.procrastinate },
+      { field: 'lose_things', value: data.responses.lose_things },
+      { field: 'finish_details', value: data.responses.finish_details },
+      { field: 'organize_tasks', value: data.responses.organize_tasks },
+      { field: 'remember_appointments', value: data.responses.remember_appointments },
+      { field: 'delay_starting', value: data.responses.delay_starting },
+      { field: 'fidget_sitting', value: data.responses.fidget_sitting },
+      { field: 'overly_active', value: data.responses.overly_active },
+      { field: 'elevated_mood', value: data.responses.elevated_mood },
+      { field: 'increased_energy', value: data.responses.increased_energy },
+      { field: 'less_sleep', value: data.responses.less_sleep },
+      { field: 'more_talkative', value: data.responses.more_talkative },
+      { field: 'risky_behaviors', value: data.responses.risky_behaviors },
+      { field: 'mood_problems', value: data.responses.mood_problems },
+      { field: 'nervous_anxious', value: data.responses.nervous_anxious },
+      { field: 'unable_control_worry', value: data.responses.unable_control_worry },
+      { field: 'worrying_too_much', value: data.responses.worrying_too_much },
+      { field: 'trouble_relaxing', value: data.responses.trouble_relaxing },
+      { field: 'restlessness', value: data.responses.restlessness },
+      { field: 'irritability', value: data.responses.irritability },
+      { field: 'fear_awful', value: data.responses.fear_awful },
+      { field: 'little_interest', value: data.responses.little_interest },
+      { field: 'feeling_down', value: data.responses.feeling_down },
+      { field: 'sleep_problems', value: data.responses.sleep_problems },
+      { field: 'feeling_tired', value: data.responses.feeling_tired },
+      { field: 'appetite_problems', value: data.responses.appetite_problems },
+      { field: 'feeling_bad_self', value: data.responses.feeling_bad_self },
+      { field: 'trouble_concentrating', value: data.responses.trouble_concentrating },
+      { field: 'psychomotor_changes', value: data.responses.psychomotor_changes },
+      { field: 'suicidal_thoughts', value: data.responses.suicidal_thoughts },
+      { field: 'anhedonia_expanded', value: data.responses.anhedonia_expanded },
+      { field: 'home_stress_trauma', value: data.responses.home_stress_trauma },
+      { field: 'abuse_exposure', value: data.responses.abuse_exposure },
       { field: 'selectedDateTime', value: data.appointment.selectedDateTime },
       { field: 'appointmentDate', value: data.appointment.appointmentDate },
       { field: 'appointmentTime', value: data.appointment.appointmentTime },
@@ -147,7 +236,47 @@ export class SurveyValidationService {
    * Validate email format
    */
   private async validateEmailFormat(email: string): Promise<void> {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Check for empty email
+    if (!email || email.trim() === '') {
+      throw new SurveyValidationError('Email is required', 'email');
+    }
+    
+    // Check for consecutive dots
+    if (email.includes('..')) {
+      throw new SurveyValidationError('Invalid email format', 'email');
+    }
+    
+    // Check for basic structure requirements
+    if (!email.includes('@')) {
+      throw new SurveyValidationError('Invalid email format', 'email');
+    }
+    
+    const parts = email.split('@');
+    if (parts.length !== 2) {
+      throw new SurveyValidationError('Invalid email format', 'email');
+    }
+    
+    const [localPart, domainPart] = parts;
+    
+    // Check local part (before @)
+    if (!localPart || localPart.length === 0) {
+      throw new SurveyValidationError('Invalid email format', 'email');
+    }
+    
+    // Check domain part (after @)
+    if (!domainPart || domainPart.length === 0) {
+      throw new SurveyValidationError('Invalid email format', 'email');
+    }
+    
+    // Domain must contain at least one dot
+    if (!domainPart.includes('.')) {
+      throw new SurveyValidationError('Invalid email format', 'email');
+    }
+    
+    // More comprehensive email validation
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    
+    // Check basic format
     if (!emailRegex.test(email)) {
       throw new SurveyValidationError('Invalid email format', 'email');
     }
@@ -168,9 +297,11 @@ export class SurveyValidationService {
       throw new SurveyValidationError('Appointment date cannot be in the past', 'appointmentDate');
     }
 
-    // Validate appointment time format
+    // Validate appointment time format - accept both HH:MM and full datetime
     const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
-    if (!timeRegex.test(appointment.appointmentTime)) {
+    const datetimeRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/;
+    
+    if (!timeRegex.test(appointment.appointmentTime) && !datetimeRegex.test(appointment.appointmentTime)) {
       throw new SurveyValidationError('Invalid appointment time format', 'appointmentTime');
     }
   }
@@ -188,8 +319,11 @@ export class SurveyValidationService {
       if (error instanceof EmailAlreadyExistsError) {
         throw error;
       }
-      logger.warn('Email uniqueness check failed', { email, error: error instanceof Error ? error.message : 'Unknown error' });
-      // Don't fail validation if uniqueness check fails due to technical issues
+      logger.error('Email uniqueness check failed - validation cannot proceed', { 
+        hasEmail: !!email, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+      throw new Error('Email validation temporarily unavailable. Please try again later.');
     }
   }
 
@@ -208,8 +342,11 @@ export class SurveyValidationService {
       if (error instanceof SubmissionAlreadyProcessedError) {
         throw error;
       }
-      logger.warn('Submission uniqueness check failed', { submissionId, error: error instanceof Error ? error.message : 'Unknown error' });
-      // Don't fail validation if uniqueness check fails due to technical issues
+      logger.error('Submission uniqueness check failed - validation cannot proceed', { 
+        submissionId, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+      throw new Error('Submission validation temporarily unavailable. Please try again later.');
     }
   }
 
@@ -241,8 +378,11 @@ export class SurveyValidationService {
       if (error instanceof RateLimitExceededError) {
         throw error;
       }
-      logger.warn('Rate limit check failed', { email, error: error instanceof Error ? error.message : 'Unknown error' });
-      // Don't fail validation if rate limit check fails due to technical issues
+      logger.error('Rate limit check failed - validation cannot proceed', { 
+        hasEmail: !!email, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+      throw new Error('Rate limit validation temporarily unavailable. Please try again later.');
     }
   }
 }

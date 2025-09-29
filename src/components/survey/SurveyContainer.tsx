@@ -4,6 +4,9 @@ import { RadioQuestion } from '../questions/RadioQuestion';
 import { DropdownQuestion } from '../questions/DropdownQuestion';
 import { ContactQuestion } from '../questions/ContactQuestion';
 import { SchedulingQuestion } from '../questions/SchedulingQuestion';
+import { LikertQuestion } from '../questions/LikertQuestion';
+import { YesNoQuestion } from '../questions/YesNoQuestion';
+import { TextAreaQuestion } from '../questions/TextAreaQuestion';
 import { useSurveyState } from '../../hooks/useSurveyState';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { apiClient } from '../../services/apiClient';
@@ -58,17 +61,73 @@ export const SurveyContainer = () => {
           contactData = JSON.parse(surveyState.responses.contactInfo);
         }
       } catch (e) {
-        console.error('Error parsing contact data:', e);
+        if (import.meta.env.DEV) {
+          // Error parsing contact data - using defaults
+        }
       }
 
       const submissionData = {
         responses: {
-          q1: surveyState.responses.q1 || '',
-          q2: surveyState.responses.q2,
-          q3: surveyState.responses.q3 || '',
-          q4: surveyState.responses.q4,
-          q5: surveyState.responses.q5 || '',
-          location: surveyState.responses.location || '',
+          // ADHD Questionnaire Responses
+          psychiatric_diagnosis: surveyState.responses.psychiatric_diagnosis || '',
+          psychiatric_diagnosis_conditional: surveyState.responses.psychiatric_diagnosis_conditional,
+          medical_diagnosis: surveyState.responses.medical_diagnosis || '',
+          medical_diagnosis_conditional: surveyState.responses.medical_diagnosis_conditional,
+          current_medications: surveyState.responses.current_medications || '',
+          psychiatric_hospitalizations: surveyState.responses.psychiatric_hospitalizations || '',
+          psychiatric_hospitalizations_conditional: surveyState.responses.psychiatric_hospitalizations_conditional,
+          family_psychiatric_history: surveyState.responses.family_psychiatric_history || '',
+          family_psychiatric_history_conditional: surveyState.responses.family_psychiatric_history_conditional,
+          family_adhd_history: surveyState.responses.family_adhd_history || '',
+          academic_difficulties: surveyState.responses.academic_difficulties || '',
+          academic_difficulties_conditional: surveyState.responses.academic_difficulties_conditional,
+          hyperactive_impulsive: surveyState.responses.hyperactive_impulsive || '',
+          social_difficulties: surveyState.responses.social_difficulties || '',
+          home_stress: surveyState.responses.home_stress || '',
+          childhood_trauma: surveyState.responses.childhood_trauma || '',
+          childhood_trauma_conditional: surveyState.responses.childhood_trauma_conditional,
+          careless_mistakes: surveyState.responses.careless_mistakes || '',
+          sustaining_attention: surveyState.responses.sustaining_attention || '',
+          restless_fidgety: surveyState.responses.restless_fidgety || '',
+          interrupt_others: surveyState.responses.interrupt_others || '',
+          procrastinate: surveyState.responses.procrastinate || '',
+          lose_things: surveyState.responses.lose_things || '',
+          finish_details: surveyState.responses.finish_details || '',
+          organize_tasks: surveyState.responses.organize_tasks || '',
+          remember_appointments: surveyState.responses.remember_appointments || '',
+          delay_starting: surveyState.responses.delay_starting || '',
+          fidget_sitting: surveyState.responses.fidget_sitting || '',
+          overly_active: surveyState.responses.overly_active || '',
+          elevated_mood: surveyState.responses.elevated_mood || '',
+          increased_energy: surveyState.responses.increased_energy || '',
+          less_sleep: surveyState.responses.less_sleep || '',
+          more_talkative: surveyState.responses.more_talkative || '',
+          risky_behaviors: surveyState.responses.risky_behaviors || '',
+          mood_problems: surveyState.responses.mood_problems || '',
+          nervous_anxious: surveyState.responses.nervous_anxious || '',
+          unable_control_worry: surveyState.responses.unable_control_worry || '',
+          worrying_too_much: surveyState.responses.worrying_too_much || '',
+          trouble_relaxing: surveyState.responses.trouble_relaxing || '',
+          restlessness: surveyState.responses.restlessness || '',
+          irritability: surveyState.responses.irritability || '',
+          fear_awful: surveyState.responses.fear_awful || '',
+          little_interest: surveyState.responses.little_interest || '',
+          feeling_down: surveyState.responses.feeling_down || '',
+          sleep_problems: surveyState.responses.sleep_problems || '',
+          feeling_tired: surveyState.responses.feeling_tired || '',
+          appetite_problems: surveyState.responses.appetite_problems || '',
+          feeling_bad_self: surveyState.responses.feeling_bad_self || '',
+          trouble_concentrating: surveyState.responses.trouble_concentrating || '',
+          psychomotor_changes: surveyState.responses.psychomotor_changes || '',
+          suicidal_thoughts: surveyState.responses.suicidal_thoughts || '',
+          anhedonia_expanded: surveyState.responses.anhedonia_expanded || '',
+          anhedonia_expanded_conditional: surveyState.responses.anhedonia_expanded_conditional,
+          home_stress_trauma: surveyState.responses.home_stress_trauma || '',
+          home_stress_trauma_conditional: surveyState.responses.home_stress_trauma_conditional,
+          abuse_exposure: surveyState.responses.abuse_exposure || '',
+          abuse_exposure_conditional: surveyState.responses.abuse_exposure_conditional,
+          other_information: surveyState.responses.other_information || '',
+          // Contact and scheduling
           firstName: contactData.firstName,
           lastName: contactData.lastName,
           email: contactData.email,
@@ -77,7 +136,7 @@ export const SurveyContainer = () => {
         appointment: {
           selectedDateTime: surveyState.responses.scheduling || '',
           appointmentDate: surveyState.responses.scheduling?.split('T')[0] || '',
-          appointmentTime: surveyState.responses.scheduling?.split('T')[1]?.replace(':00Z', '') || ''
+          appointmentTime: surveyState.responses.scheduling?.split('T')[1]?.substring(0, 5) || ''
         },
         organizationId: config.organization.defaultId
       };
@@ -93,7 +152,7 @@ export const SurveyContainer = () => {
           appointmentId: result.appointmentId,
           appointmentDate: submissionData.appointment.appointmentDate,
           appointmentTime: submissionData.appointment.appointmentTime,
-          sessionType: config.session?.defaultType || 'Initial Consultation'
+          sessionType: 'Initial Consultation'
         });
 
         // Clean up localStorage after successful submission
@@ -198,7 +257,9 @@ export const SurveyContainer = () => {
                             contactData = JSON.parse(surveyState.responses.contactInfo);
                           }
                         } catch (e) {
-                          console.error('Error parsing contact data:', e);
+                          if (import.meta.env.DEV) {
+                            // Error parsing contact data - using defaults
+                          }
                         }
                         return (
                           <>
@@ -215,7 +276,7 @@ export const SurveyContainer = () => {
                               <strong>Appointment Time:</strong> {submissionData?.appointment?.appointmentTime || 'N/A'}
                             </p>
                             <p style={{ margin: '0.25rem 0' }}>
-                              <strong>Session Type:</strong> {config.session?.defaultType || 'Initial Consultation'}
+                              <strong>Session Type:</strong> Initial Consultation
                             </p>
                           </>
                         );
@@ -344,6 +405,61 @@ export const SurveyContainer = () => {
           />
         );
         
+      case 'likert':
+        return (
+          <LikertQuestion
+            questionId={currentQuestion.id}
+            question={currentQuestion.question}
+            subtitle={currentQuestion.subtitle}
+            value={currentValue}
+            onChange={(value) => {
+              updateResponse(currentQuestion.id, value);
+              if (value) {
+                setTimeout(() => nextStep(), 300);
+              }
+            }}
+            required={currentQuestion.required}
+          />
+        );
+        
+      case 'yesno':
+        return (
+          <YesNoQuestion
+            questionId={currentQuestion.id}
+            question={currentQuestion.question}
+            subtitle={currentQuestion.subtitle}
+            value={currentValue}
+            onChange={(value) => {
+              updateResponse(currentQuestion.id, value);
+              // Auto-advance logic:
+              // - "No" always auto-advances
+              // - "Yes" only auto-advances if there's no conditional text box
+              if (value === 'No') {
+                setTimeout(() => nextStep(), 300);
+              } else if (value === 'Yes' && !currentQuestion.conditionalFields) {
+                setTimeout(() => nextStep(), 300);
+              }
+            }}
+            required={currentQuestion.required}
+            conditionalFields={currentQuestion.conditionalFields}
+            conditionalValue={getResponse(`${currentQuestion.id}_conditional`)}
+            onConditionalChange={(value) => updateResponse(`${currentQuestion.id}_conditional`, value)}
+          />
+        );
+        
+      case 'textarea':
+        return (
+          <TextAreaQuestion
+            questionId={currentQuestion.id}
+            question={currentQuestion.question}
+            subtitle={currentQuestion.subtitle}
+            value={currentValue}
+            onChange={(value) => updateResponse(currentQuestion.id, value)}
+            placeholder={currentQuestion.options?.[0]}
+            required={currentQuestion.required}
+          />
+        );
+        
       case 'contact':
         return (
           <ContactQuestion
@@ -367,7 +483,7 @@ export const SurveyContainer = () => {
         );
         
       default:
-        return <div>Unknown question type</div>;
+        return <div>Unknown question type: {currentQuestion.type}</div>;
     }
   };
 

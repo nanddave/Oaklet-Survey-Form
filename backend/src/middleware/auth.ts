@@ -13,15 +13,18 @@ export interface AuthenticatedRequest extends Request {
 /**
  * Validate service token for internal API calls
  */
-export const validateServiceToken = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const validateServiceToken = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
   const serviceToken = req.headers['x-service-token'] as string;
   const expectedToken = process.env.SURVEY_SERVICE_TOKEN;
 
-  // Skip validation in development if no token is set
-  if (process.env.NODE_ENV === 'development' && !expectedToken) {
-    logger.warn('Service token validation skipped in development mode');
-    req.isServiceToken = true;
-    return next();
+  // Require service token in all environments for security
+  if (!expectedToken) {
+    logger.error('SURVEY_SERVICE_TOKEN environment variable not configured');
+    res.status(500).json({
+      success: false,
+      error: 'Service configuration error'
+    });
+    return;
   }
 
   if (!serviceToken) {
@@ -30,10 +33,11 @@ export const validateServiceToken = (req: AuthenticatedRequest, res: Response, n
       userAgent: req.get('User-Agent'),
       url: req.url
     });
-    return res.status(401).json({
+    res.status(401).json({
       success: false,
       error: 'Service token required'
     });
+    return;
   }
 
   if (serviceToken !== expectedToken) {
@@ -42,10 +46,11 @@ export const validateServiceToken = (req: AuthenticatedRequest, res: Response, n
       userAgent: req.get('User-Agent'),
       url: req.url
     });
-    return res.status(401).json({
+    res.status(401).json({
       success: false,
       error: 'Invalid service token'
     });
+    return;
   }
 
   req.isServiceToken = true;
@@ -55,7 +60,7 @@ export const validateServiceToken = (req: AuthenticatedRequest, res: Response, n
 /**
  * Optional service token validation (allows requests without token)
  */
-export const optionalServiceToken = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const optionalServiceToken = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
   const serviceToken = req.headers['x-service-token'] as string;
   const expectedToken = process.env.SURVEY_SERVICE_TOKEN;
 

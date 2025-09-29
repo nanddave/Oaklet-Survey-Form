@@ -8,13 +8,69 @@ export interface SurveySubmission {
   patientEmail: string;
   organizationId: string;
   
-  // Survey responses (all in one row)
-  q1: string;
-  q2?: string;
-  q3: string;
-  q4?: string;
-  q5: string;
-  location: string;
+  // ADHD Questionnaire Responses
+  psychiatric_diagnosis: string;
+  psychiatric_diagnosis_conditional?: string;
+  medical_diagnosis: string;
+  medical_diagnosis_conditional?: string;
+  current_medications: string;
+  psychiatric_hospitalizations: string;
+  psychiatric_hospitalizations_conditional?: string;
+  family_psychiatric_history: string;
+  family_psychiatric_history_conditional?: string;
+  family_adhd_history: string;
+  academic_difficulties: string;
+  academic_difficulties_conditional?: string;
+  hyperactive_impulsive: string;
+  social_difficulties: string;
+  home_stress: string;
+  childhood_trauma: string;
+  childhood_trauma_conditional?: string;
+  careless_mistakes: string;
+  sustaining_attention: string;
+  restless_fidgety: string;
+  interrupt_others: string;
+  procrastinate: string;
+  lose_things: string;
+  finish_details: string;
+  organize_tasks: string;
+  remember_appointments: string;
+  delay_starting: string;
+  fidget_sitting: string;
+  overly_active: string;
+  elevated_mood: string;
+  increased_energy: string;
+  less_sleep: string;
+  more_talkative: string;
+  risky_behaviors: string;
+  mood_problems: string;
+  nervous_anxious: string;
+  unable_control_worry: string;
+  worrying_too_much: string;
+  trouble_relaxing: string;
+  restlessness: string;
+  irritability: string;
+  fear_awful: string;
+  little_interest: string;
+  feeling_down: string;
+  sleep_problems: string;
+  feeling_tired: string;
+  appetite_problems: string;
+  feeling_bad_self: string;
+  trouble_concentrating: string;
+  psychomotor_changes: string;
+  suicidal_thoughts: string;
+  anhedonia_expanded: string;
+  anhedonia_expanded_conditional?: string;
+  home_stress_trauma: string;
+  home_stress_trauma_conditional?: string;
+  abuse_exposure: string;
+  abuse_exposure_conditional?: string;
+  other_information: string;
+  
+  // Contact info
+  firstName: string;
+  lastName: string;
   email: string;
   
   // Appointment details
@@ -69,13 +125,68 @@ export class DynamoDBService {
           patientEmail: submission.patientEmail,
           organizationId: submission.organizationId,
           
-          // All survey responses in one row
-          q1: submission.q1,
-          q2: submission.q2 || null,
-          q3: submission.q3,
-          q4: submission.q4 || null,
-          q5: submission.q5,
-          location: submission.location,
+          // ADHD Questionnaire Responses
+          psychiatric_diagnosis: submission.psychiatric_diagnosis,
+          psychiatric_diagnosis_conditional: submission.psychiatric_diagnosis_conditional || null,
+          medical_diagnosis: submission.medical_diagnosis,
+          medical_diagnosis_conditional: submission.medical_diagnosis_conditional || null,
+          current_medications: submission.current_medications,
+          psychiatric_hospitalizations: submission.psychiatric_hospitalizations,
+          psychiatric_hospitalizations_conditional: submission.psychiatric_hospitalizations_conditional || null,
+          family_psychiatric_history: submission.family_psychiatric_history,
+          family_psychiatric_history_conditional: submission.family_psychiatric_history_conditional || null,
+          family_adhd_history: submission.family_adhd_history,
+          academic_difficulties: submission.academic_difficulties,
+          academic_difficulties_conditional: submission.academic_difficulties_conditional || null,
+          hyperactive_impulsive: submission.hyperactive_impulsive,
+          social_difficulties: submission.social_difficulties,
+          home_stress: submission.home_stress,
+          childhood_trauma: submission.childhood_trauma,
+          childhood_trauma_conditional: submission.childhood_trauma_conditional || null,
+          careless_mistakes: submission.careless_mistakes,
+          sustaining_attention: submission.sustaining_attention,
+          restless_fidgety: submission.restless_fidgety,
+          interrupt_others: submission.interrupt_others,
+          procrastinate: submission.procrastinate,
+          lose_things: submission.lose_things,
+          finish_details: submission.finish_details,
+          organize_tasks: submission.organize_tasks,
+          remember_appointments: submission.remember_appointments,
+          delay_starting: submission.delay_starting,
+          fidget_sitting: submission.fidget_sitting,
+          overly_active: submission.overly_active,
+          elevated_mood: submission.elevated_mood,
+          increased_energy: submission.increased_energy,
+          less_sleep: submission.less_sleep,
+          more_talkative: submission.more_talkative,
+          risky_behaviors: submission.risky_behaviors,
+          mood_problems: submission.mood_problems,
+          nervous_anxious: submission.nervous_anxious,
+          unable_control_worry: submission.unable_control_worry,
+          worrying_too_much: submission.worrying_too_much,
+          trouble_relaxing: submission.trouble_relaxing,
+          restlessness: submission.restlessness,
+          irritability: submission.irritability,
+          fear_awful: submission.fear_awful,
+          little_interest: submission.little_interest,
+          feeling_down: submission.feeling_down,
+          sleep_problems: submission.sleep_problems,
+          feeling_tired: submission.feeling_tired,
+          appetite_problems: submission.appetite_problems,
+          feeling_bad_self: submission.feeling_bad_self,
+          trouble_concentrating: submission.trouble_concentrating,
+          psychomotor_changes: submission.psychomotor_changes,
+          suicidal_thoughts: submission.suicidal_thoughts,
+          anhedonia_expanded: submission.anhedonia_expanded,
+          anhedonia_expanded_conditional: submission.anhedonia_expanded_conditional || null,
+          home_stress_trauma: submission.home_stress_trauma,
+          home_stress_trauma_conditional: submission.home_stress_trauma_conditional || null,
+          abuse_exposure: submission.abuse_exposure,
+          abuse_exposure_conditional: submission.abuse_exposure_conditional || null,
+          other_information: submission.other_information,
+          // Contact info
+          firstName: submission.firstName,
+          lastName: submission.lastName,
           email: submission.email,
           
           // Appointment details
@@ -167,7 +278,7 @@ export class DynamoDBService {
     const result = await this.client.send(command);
     
     logger.info('Successfully retrieved submissions by email', {
-      patientEmail,
+      hasEmail: !!patientEmail,
       count: result.Items?.length || 0
     });
 

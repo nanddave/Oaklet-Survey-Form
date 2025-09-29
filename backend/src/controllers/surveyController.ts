@@ -10,14 +10,74 @@ import { ErrorMappingService } from '../services/ErrorMappingService';
 import { SurveyConfig } from '../config/survey.config';
 import { logger } from '../config/logger';
 
+// Basic input sanitization utility
+const sanitizeString = (input: string): string => {
+  if (typeof input !== 'string') return '';
+  return input.trim().replace(/[<>]/g, ''); // Remove basic HTML tags
+};
+
 export interface SurveySubmissionRequest {
   responses: {
-    q1: string;
-    q2?: string;
-    q3: string;
-    q4?: string;
-    q5: string;
-    location: string;
+    // ADHD Questionnaire Responses
+    psychiatric_diagnosis: string;
+    psychiatric_diagnosis_conditional?: string;
+    medical_diagnosis: string;
+    medical_diagnosis_conditional?: string;
+    current_medications: string;
+    psychiatric_hospitalizations: string;
+    psychiatric_hospitalizations_conditional?: string;
+    family_psychiatric_history: string;
+    family_psychiatric_history_conditional?: string;
+    family_adhd_history: string;
+    academic_difficulties: string;
+    academic_difficulties_conditional?: string;
+    hyperactive_impulsive: string;
+    social_difficulties: string;
+    home_stress: string;
+    childhood_trauma: string;
+    childhood_trauma_conditional?: string;
+    careless_mistakes: string;
+    sustaining_attention: string;
+    restless_fidgety: string;
+    interrupt_others: string;
+    procrastinate: string;
+    lose_things: string;
+    finish_details: string;
+    organize_tasks: string;
+    remember_appointments: string;
+    delay_starting: string;
+    fidget_sitting: string;
+    overly_active: string;
+    elevated_mood: string;
+    increased_energy: string;
+    less_sleep: string;
+    more_talkative: string;
+    risky_behaviors: string;
+    mood_problems: string;
+    nervous_anxious: string;
+    unable_control_worry: string;
+    worrying_too_much: string;
+    trouble_relaxing: string;
+    restlessness: string;
+    irritability: string;
+    fear_awful: string;
+    little_interest: string;
+    feeling_down: string;
+    sleep_problems: string;
+    feeling_tired: string;
+    appetite_problems: string;
+    feeling_bad_self: string;
+    trouble_concentrating: string;
+    psychomotor_changes: string;
+    suicidal_thoughts: string;
+    anhedonia_expanded: string;
+    anhedonia_expanded_conditional?: string;
+    home_stress_trauma: string;
+    home_stress_trauma_conditional?: string;
+    abuse_exposure: string;
+    abuse_exposure_conditional?: string;
+    other_information: string;
+    // Contact and scheduling
     firstName: string;
     lastName: string;
     email: string;
@@ -85,7 +145,7 @@ export class SurveyController {
 
       logger.info('Email availability check completed', {
         requestId,
-        email,
+        hasEmail: !!email,
         isAvailable,
         existingCount: existingSubmissions.length
       });
@@ -100,7 +160,7 @@ export class SurveyController {
         );
       } catch (auditError) {
         logger.error('audit.logEmailCheck failed', {
-          email,
+          hasEmail: !!email,
           organizationId: process.env.DEFAULT_ORGANIZATION_ID || '',
           error: auditError instanceof Error ? auditError.message : 'Unknown error'
         });
@@ -114,7 +174,7 @@ export class SurveyController {
     } catch (error) {
       logger.error('Email availability check failed', {
         requestId,
-        email,
+        hasEmail: !!email,
         error: error instanceof Error ? error.message : 'Unknown error'
       });
       
@@ -143,16 +203,70 @@ export class SurveyController {
 
       const submissionData = {
         responses: {
-          firstName: responses.firstName,
-          lastName: responses.lastName,
-          email: responses.email,
-          q1: responses.q1,
-          q2: responses.q2,
-          q3: responses.q3,
-          q4: responses.q4,
-          q5: responses.q5,
-          location: responses.location,
-          scheduling: responses.scheduling
+          // ADHD Questionnaire Responses - sanitized
+          psychiatric_diagnosis: sanitizeString(responses.psychiatric_diagnosis),
+          psychiatric_diagnosis_conditional: responses.psychiatric_diagnosis_conditional ? sanitizeString(responses.psychiatric_diagnosis_conditional) : undefined,
+          medical_diagnosis: sanitizeString(responses.medical_diagnosis),
+          medical_diagnosis_conditional: responses.medical_diagnosis_conditional ? sanitizeString(responses.medical_diagnosis_conditional) : undefined,
+          current_medications: sanitizeString(responses.current_medications),
+          psychiatric_hospitalizations: responses.psychiatric_hospitalizations,
+          psychiatric_hospitalizations_conditional: responses.psychiatric_hospitalizations_conditional,
+          family_psychiatric_history: responses.family_psychiatric_history,
+          family_psychiatric_history_conditional: responses.family_psychiatric_history_conditional,
+          family_adhd_history: responses.family_adhd_history,
+          academic_difficulties: responses.academic_difficulties,
+          academic_difficulties_conditional: responses.academic_difficulties_conditional,
+          hyperactive_impulsive: responses.hyperactive_impulsive,
+          social_difficulties: responses.social_difficulties,
+          home_stress: responses.home_stress,
+          childhood_trauma: responses.childhood_trauma,
+          childhood_trauma_conditional: responses.childhood_trauma_conditional,
+          careless_mistakes: responses.careless_mistakes,
+          sustaining_attention: responses.sustaining_attention,
+          restless_fidgety: responses.restless_fidgety,
+          interrupt_others: responses.interrupt_others,
+          procrastinate: responses.procrastinate,
+          lose_things: responses.lose_things,
+          finish_details: responses.finish_details,
+          organize_tasks: responses.organize_tasks,
+          remember_appointments: responses.remember_appointments,
+          delay_starting: responses.delay_starting,
+          fidget_sitting: responses.fidget_sitting,
+          overly_active: responses.overly_active,
+          elevated_mood: responses.elevated_mood,
+          increased_energy: responses.increased_energy,
+          less_sleep: responses.less_sleep,
+          more_talkative: responses.more_talkative,
+          risky_behaviors: responses.risky_behaviors,
+          mood_problems: responses.mood_problems,
+          nervous_anxious: responses.nervous_anxious,
+          unable_control_worry: responses.unable_control_worry,
+          worrying_too_much: responses.worrying_too_much,
+          trouble_relaxing: responses.trouble_relaxing,
+          restlessness: responses.restlessness,
+          irritability: responses.irritability,
+          fear_awful: responses.fear_awful,
+          little_interest: responses.little_interest,
+          feeling_down: responses.feeling_down,
+          sleep_problems: responses.sleep_problems,
+          feeling_tired: responses.feeling_tired,
+          appetite_problems: responses.appetite_problems,
+          feeling_bad_self: responses.feeling_bad_self,
+          trouble_concentrating: responses.trouble_concentrating,
+          psychomotor_changes: responses.psychomotor_changes,
+          suicidal_thoughts: responses.suicidal_thoughts,
+          anhedonia_expanded: responses.anhedonia_expanded,
+          anhedonia_expanded_conditional: responses.anhedonia_expanded_conditional,
+          home_stress_trauma: responses.home_stress_trauma,
+          home_stress_trauma_conditional: responses.home_stress_trauma_conditional,
+          abuse_exposure: responses.abuse_exposure,
+          abuse_exposure_conditional: responses.abuse_exposure_conditional,
+          other_information: responses.other_information,
+          // Contact and scheduling - sanitized
+          firstName: sanitizeString(responses.firstName),
+          lastName: sanitizeString(responses.lastName),
+          email: sanitizeString(responses.email),
+          scheduling: sanitizeString(responses.scheduling)
         },
         appointment: {
           selectedDateTime: appointment.selectedDateTime,
@@ -200,12 +314,66 @@ export class SurveyController {
       const nestResult = await this.retry.executeWithConditionalRetry(
         () => this.oakletNest.submitSurvey({
           responses: {
-            q1: responses.q1,
-            q2: responses.q2,
-            q3: responses.q3,
-            q4: responses.q4,
-            q5: responses.q5,
-            location: responses.location,
+            // ADHD Questionnaire Responses
+            psychiatric_diagnosis: responses.psychiatric_diagnosis,
+            psychiatric_diagnosis_conditional: responses.psychiatric_diagnosis_conditional,
+            medical_diagnosis: responses.medical_diagnosis,
+            medical_diagnosis_conditional: responses.medical_diagnosis_conditional,
+            current_medications: responses.current_medications,
+            psychiatric_hospitalizations: responses.psychiatric_hospitalizations,
+            psychiatric_hospitalizations_conditional: responses.psychiatric_hospitalizations_conditional,
+            family_psychiatric_history: responses.family_psychiatric_history,
+            family_psychiatric_history_conditional: responses.family_psychiatric_history_conditional,
+            family_adhd_history: responses.family_adhd_history,
+            academic_difficulties: responses.academic_difficulties,
+            academic_difficulties_conditional: responses.academic_difficulties_conditional,
+            hyperactive_impulsive: responses.hyperactive_impulsive,
+            social_difficulties: responses.social_difficulties,
+            home_stress: responses.home_stress,
+            childhood_trauma: responses.childhood_trauma,
+            childhood_trauma_conditional: responses.childhood_trauma_conditional,
+            careless_mistakes: responses.careless_mistakes,
+            sustaining_attention: responses.sustaining_attention,
+            restless_fidgety: responses.restless_fidgety,
+            interrupt_others: responses.interrupt_others,
+            procrastinate: responses.procrastinate,
+            lose_things: responses.lose_things,
+            finish_details: responses.finish_details,
+            organize_tasks: responses.organize_tasks,
+            remember_appointments: responses.remember_appointments,
+            delay_starting: responses.delay_starting,
+            fidget_sitting: responses.fidget_sitting,
+            overly_active: responses.overly_active,
+            elevated_mood: responses.elevated_mood,
+            increased_energy: responses.increased_energy,
+            less_sleep: responses.less_sleep,
+            more_talkative: responses.more_talkative,
+            risky_behaviors: responses.risky_behaviors,
+            mood_problems: responses.mood_problems,
+            nervous_anxious: responses.nervous_anxious,
+            unable_control_worry: responses.unable_control_worry,
+            worrying_too_much: responses.worrying_too_much,
+            trouble_relaxing: responses.trouble_relaxing,
+            restlessness: responses.restlessness,
+            irritability: responses.irritability,
+            fear_awful: responses.fear_awful,
+            little_interest: responses.little_interest,
+            feeling_down: responses.feeling_down,
+            sleep_problems: responses.sleep_problems,
+            feeling_tired: responses.feeling_tired,
+            appetite_problems: responses.appetite_problems,
+            feeling_bad_self: responses.feeling_bad_self,
+            trouble_concentrating: responses.trouble_concentrating,
+            psychomotor_changes: responses.psychomotor_changes,
+            suicidal_thoughts: responses.suicidal_thoughts,
+            anhedonia_expanded: responses.anhedonia_expanded,
+            anhedonia_expanded_conditional: responses.anhedonia_expanded_conditional,
+            home_stress_trauma: responses.home_stress_trauma,
+            home_stress_trauma_conditional: responses.home_stress_trauma_conditional,
+            abuse_exposure: responses.abuse_exposure,
+            abuse_exposure_conditional: responses.abuse_exposure_conditional,
+            other_information: responses.other_information,
+            // Contact and scheduling
             firstName: responses.firstName,
             lastName: responses.lastName,
             email: responses.email,
@@ -234,10 +402,16 @@ export class SurveyController {
       const encryptedPHI = await this.encryption.encryptPHI({
         email: responses.email,
         healthResponses: {
-          q2: responses.q2,
-          q3: responses.q3,
-          q4: responses.q4,
-          q5: responses.q5
+          psychiatric_diagnosis_conditional: responses.psychiatric_diagnosis_conditional,
+          medical_diagnosis_conditional: responses.medical_diagnosis_conditional,
+          psychiatric_hospitalizations_conditional: responses.psychiatric_hospitalizations_conditional,
+          family_psychiatric_history_conditional: responses.family_psychiatric_history_conditional,
+          academic_difficulties_conditional: responses.academic_difficulties_conditional,
+          childhood_trauma_conditional: responses.childhood_trauma_conditional,
+          anhedonia_expanded_conditional: responses.anhedonia_expanded_conditional,
+          home_stress_trauma_conditional: responses.home_stress_trauma_conditional,
+          abuse_exposure_conditional: responses.abuse_exposure_conditional,
+          other_information: responses.other_information
         }
       });
 
@@ -246,18 +420,72 @@ export class SurveyController {
         submissionDate: new Date().toISOString(),
         patientEmail: responses.email,
         organizationId,
-        q1: responses.q1,
-        q2: responses.q2,
-        q3: responses.q3,
-        q4: responses.q4,
-        q5: responses.q5,
-        location: responses.location,
+        // ADHD Questionnaire Responses
+        psychiatric_diagnosis: responses.psychiatric_diagnosis,
+        psychiatric_diagnosis_conditional: responses.psychiatric_diagnosis_conditional,
+        medical_diagnosis: responses.medical_diagnosis,
+        medical_diagnosis_conditional: responses.medical_diagnosis_conditional,
+        current_medications: responses.current_medications,
+        psychiatric_hospitalizations: responses.psychiatric_hospitalizations,
+        psychiatric_hospitalizations_conditional: responses.psychiatric_hospitalizations_conditional,
+        family_psychiatric_history: responses.family_psychiatric_history,
+        family_psychiatric_history_conditional: responses.family_psychiatric_history_conditional,
+        family_adhd_history: responses.family_adhd_history,
+        academic_difficulties: responses.academic_difficulties,
+        academic_difficulties_conditional: responses.academic_difficulties_conditional,
+        hyperactive_impulsive: responses.hyperactive_impulsive,
+        social_difficulties: responses.social_difficulties,
+        home_stress: responses.home_stress,
+        childhood_trauma: responses.childhood_trauma,
+        childhood_trauma_conditional: responses.childhood_trauma_conditional,
+        careless_mistakes: responses.careless_mistakes,
+        sustaining_attention: responses.sustaining_attention,
+        restless_fidgety: responses.restless_fidgety,
+        interrupt_others: responses.interrupt_others,
+        procrastinate: responses.procrastinate,
+        lose_things: responses.lose_things,
+        finish_details: responses.finish_details,
+        organize_tasks: responses.organize_tasks,
+        remember_appointments: responses.remember_appointments,
+        delay_starting: responses.delay_starting,
+        fidget_sitting: responses.fidget_sitting,
+        overly_active: responses.overly_active,
+        elevated_mood: responses.elevated_mood,
+        increased_energy: responses.increased_energy,
+        less_sleep: responses.less_sleep,
+        more_talkative: responses.more_talkative,
+        risky_behaviors: responses.risky_behaviors,
+        mood_problems: responses.mood_problems,
+        nervous_anxious: responses.nervous_anxious,
+        unable_control_worry: responses.unable_control_worry,
+        worrying_too_much: responses.worrying_too_much,
+        trouble_relaxing: responses.trouble_relaxing,
+        restlessness: responses.restlessness,
+        irritability: responses.irritability,
+        fear_awful: responses.fear_awful,
+        little_interest: responses.little_interest,
+        feeling_down: responses.feeling_down,
+        sleep_problems: responses.sleep_problems,
+        feeling_tired: responses.feeling_tired,
+        appetite_problems: responses.appetite_problems,
+        feeling_bad_self: responses.feeling_bad_self,
+        trouble_concentrating: responses.trouble_concentrating,
+        psychomotor_changes: responses.psychomotor_changes,
+        suicidal_thoughts: responses.suicidal_thoughts,
+        anhedonia_expanded: responses.anhedonia_expanded,
+        anhedonia_expanded_conditional: responses.anhedonia_expanded_conditional,
+        home_stress_trauma: responses.home_stress_trauma,
+        home_stress_trauma_conditional: responses.home_stress_trauma_conditional,
+        abuse_exposure: responses.abuse_exposure,
+        abuse_exposure_conditional: responses.abuse_exposure_conditional,
+        other_information: responses.other_information,
+        // Contact info
         firstName: responses.firstName,
         lastName: responses.lastName,
         email: responses.email,
         appointmentId: nestResult.result!.appointmentId,
         appointmentDate: appointment.appointmentDate,
-        appointmentTime: appointment.appointmentTime,
+        appointmentTime: this.convertToLocalAppointmentTime(appointment.selectedDateTime),
         sessionType: process.env.DEFAULT_SESSION_TYPE,
         appointmentStatus: "scheduled",
         clientId: nestResult.result!.clientId,
@@ -456,6 +684,30 @@ export class SurveyController {
         status: 'unhealthy',
         error: 'Health check failed'
       });
+    }
+  }
+
+  /**
+   * Convert local appointment time to UTC and return local time format for storage
+   * @param selectedDateTime - The local datetime string from frontend (e.g., "2025-10-02T13:00:00")
+   * @returns Local time in HH:MM format (e.g., "13:00" for 1:00 PM local time)
+   */
+  private convertToLocalAppointmentTime(selectedDateTime: string): string {
+    try {
+      // Parse as local time (no Z suffix means local timezone)
+      const localDate = new Date(selectedDateTime);
+      const localHour = localDate.getHours();
+      const localMinute = localDate.getMinutes();
+      
+      return `${localHour.toString().padStart(2, '0')}:${localMinute.toString().padStart(2, '0')}`;
+    } catch (error) {
+      logger.error('Failed to convert appointment time to local format', {
+        selectedDateTime,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+      
+      // Fallback to original time if conversion fails
+      return selectedDateTime.split('T')[1]?.split(':').slice(0, 2).join(':') || '09:00';
     }
   }
 }

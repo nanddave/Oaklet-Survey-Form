@@ -1,12 +1,18 @@
 export interface SurveyQuestion {
   id: string;
-  type: 'radio' | 'dropdown' | 'email' | 'contact' | 'scheduling';
+  type: 'radio' | 'dropdown' | 'email' | 'contact' | 'scheduling' | 'likert' | 'textarea' | 'yesno';
   question: string;
   subtitle?: string;
   options?: string[];
+  placeholder?: string;
   required: boolean;
   conditionalLogic?: {
     showIf: { questionId: string; answer: string };
+  };
+  conditionalFields?: {
+    showIf: { questionId: string; answer: string };
+    fieldType: 'textarea' | 'text';
+    placeholder?: string;
   };
 }
 
